@@ -2,6 +2,7 @@ import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 import './dialog'
 import { Logger } from './logger'
 import { initialize } from './services'
+import { autoUpdater } from 'electron-updater'
 import createBaseWorker from './workers/index?worker'
 import indexPreload from '/@preload/index'
 // import anotherPreload from '/@preload/another'
@@ -25,6 +26,11 @@ async function main() {
   logger.initialize(app.getPath('userData'))
   initialize(logger)
   app.whenReady().then(() => {
+    // Auto-Update
+    if (process.env.NODE_ENV === 'production') {
+      autoUpdater.checkForUpdates()
+    }
+
     const main = createWindow()
     main.on('maximize', () => {
       main.webContents.send('maximize', null)
@@ -118,6 +124,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+autoUpdater.on('update-downloaded', () => {
+  autoUpdater.quitAndInstall()
 })
 
 process.nextTick(main)
