@@ -16,8 +16,7 @@ const config = {
   publish: [{
     provider: 'github',
     owner: 'HexaRolls',
-    repo: 'https://github.com/HexaRolls/HexaDices.git',
-    token: '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'
+    repo: 'https://github.com/HexaRolls/HexaDices.git'
   }],
   files: [
     // don't include node_modules as all js modules are bundled into production js by rollup
