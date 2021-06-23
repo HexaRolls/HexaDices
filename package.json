@@ -1,79 +1,79 @@
 {
-    "name": "HexaDices",
-    "version": "0.0.1",
-    "private": true,
-    "description": "Interface pour la gestion de RP en ligne",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/HexaRolls/HexaDices.git"
-    },
-    "scripts": {
-        "dev:docs": "node scripts/dev.docs.js",
-        "dev": "node scripts/dev.js",
-        "build": "node scripts/build.js",
-        "build:dir": "cross-env BUILD_TARGET=dir node scripts/build.js",
-        "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
-        "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
-        "lint": "eslint --ext .ts,.vue,.js src scripts",
-        "lint:fix": "npm run lint -- --fix",
-        "postinstall": "node ./scripts/dev.install.js"
-    },
-    "author": {
-        "email": "alexis31.balthazard@gmail.com",
-        "name": "Alexis Balthazard"
-    },
-    "license": "MIT",
-    "dependencies": {
-        "bonjour": "^3.5.0",
-        "electron-store": "^8.0.0",
-        "electron-updater": "^4.3.5",
-        "vue": "^3.0.11",
-        "vue-router": "^4.0.4",
-        "vuedraggable": "^4.0.1",
-        "vuex": "^4.0.0"
-    },
-    "external": [
-        "electron-updater",
-        "electron-store",
-        "fs-extra",
-        "bonjour"
-    ],
-    "devDependencies": {
-        "@rollup/plugin-alias": "^3.1.1",
-        "@rollup/plugin-commonjs": "^17.0.0",
-        "@rollup/plugin-json": "^4.1.0",
-        "@rollup/plugin-node-resolve": "^11.0.1",
-        "@rollup/plugin-typescript": "^8.2.0",
-        "@types/bonjour": "^3.5.8",
-        "@vitejs/plugin-vue": "^1.2.1",
-        "@vue/compiler-sfc": "^3.0.6",
-        "builtin-modules": "^3.1.0",
-        "chalk": "^4.1.0",
-        "cross-env": "^7.0.2",
-        "electron": "^13.0.1",
-        "electron-builder": "^22.9.1",
-        "esbuild": "^0.9.3",
-        "extract-zip": "^1.7.0",
-        "fs-extra": "^9.0.1",
-        "got": "^9.6.0",
-        "magic-string": "^0.25.7",
-        "naive-ui": "^2.11.4",
-        "rollup": "^2.38.5",
-        "sass": "^1.34.0",
-        "tslib": "^1.14.1",
-        "typescript": "^4.1.2",
-        "vite": "^2.1.5"
-    },
-    "optionalDependencies": {
-        "@types/node": "^14.14.7",
-        "@typescript-eslint/eslint-plugin": "^4.7.0",
-        "@typescript-eslint/parser": "^4.7.0",
-        "eslint": "^7.13.0",
-        "eslint-config-standard": "^14.1.1",
-        "eslint-plugin-import": "^2.22.1",
-        "eslint-plugin-node": "^11.1.0",
-        "eslint-plugin-promise": "^4.2.1",
-        "eslint-plugin-standard": "^4.0.2",
-        "eslint-plugin-vue": "^7.1.0"
-    }
+  "name": "HexaDices",
+  "version": "0.0.2",
+  "private": true,
+  "description": "Interface pour la gestion de RP en ligne",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HexaRolls/HexaDices.git"
+  },
+  "scripts": {
+    "dev:docs": "node scripts/dev.docs.js",
+    "dev": "node scripts/dev.js",
+    "build": "node scripts/build.js",
+    "build:dir": "cross-env BUILD_TARGET=dir node scripts/build.js",
+    "build:lite": "cross-env BUILD_TARGET=lite node scripts/build.js",
+    "build:production": "cross-env BUILD_TARGET=production node scripts/build.js",
+    "lint": "eslint --ext .ts,.vue,.js src scripts",
+    "lint:fix": "npm run lint -- --fix",
+    "postinstall": "node ./scripts/dev.install.js"
+  },
+  "author": {
+    "email": "alexis31.balthazard@gmail.com",
+    "name": "Alexis Balthazard"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bonjour": "^3.5.0",
+    "electron-store": "^8.0.0",
+    "electron-updater": "^4.3.5",
+    "vue": "^3.0.11",
+    "vue-router": "^4.0.4",
+    "vuedraggable": "^4.0.1",
+    "vuex": "^4.0.0"
+  },
+  "external": [
+    "electron-updater",
+    "electron-store",
+    "fs-extra",
+    "bonjour"
+  ],
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.1",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rollup/plugin-typescript": "^8.2.0",
+    "@types/bonjour": "^3.5.8",
+    "@vitejs/plugin-vue": "^1.2.1",
+    "@vue/compiler-sfc": "^3.0.6",
+    "builtin-modules": "^3.1.0",
+    "chalk": "^4.1.0",
+    "cross-env": "^7.0.2",
+    "electron": "^13.0.1",
+    "electron-builder": "^22.9.1",
+    "esbuild": "^0.9.3",
+    "extract-zip": "^1.7.0",
+    "fs-extra": "^9.0.1",
+    "got": "^9.6.0",
+    "magic-string": "^0.25.7",
+    "naive-ui": "^2.11.4",
+    "rollup": "^2.38.5",
+    "sass": "^1.34.0",
+    "tslib": "^1.14.1",
+    "typescript": "^4.1.2",
+    "vite": "^2.1.5"
+  },
+  "optionalDependencies": {
+    "@types/node": "^14.14.7",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
+    "eslint": "^7.13.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.2",
+    "eslint-plugin-vue": "^7.1.0"
+  }
 }
