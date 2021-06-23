@@ -28,7 +28,11 @@ async function main() {
   app.whenReady().then(() => {
     // Auto-Update
     if (process.env.NODE_ENV === 'production') {
-      autoUpdater.checkForUpdates()
+      try {
+        autoUpdater.checkForUpdates()
+      } catch (error) {
+        logger.error(error)
+      }
     }
 
     const main = createWindow()
