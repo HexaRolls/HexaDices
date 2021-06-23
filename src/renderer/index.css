@@ -1,0 +1,83 @@
+body {
+  padding: 0;
+  margin: 0;
+  border: 1px solid #48545c;
+  overflow: hidden;
+  max-height: 100vh;
+}
+
+main {
+  height: calc(100vh - 32px);
+  margin-top: 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+*, ::after, ::before {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+#app {
+  font-family: 'Nunito', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-align: center;
+  color: #BFC9D4;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Nunito'),
+    url('./assets/fonts/Nunito_Sans/NunitoSans-Regular.ttf') format('truetype');
+  unicode-range: U+000-5FF;
+}
+
+.rounded {
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 5px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.rounded:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.container {
+  display: flex;
+  padding: 10px;
+  flex-wrap: wrap;
+  width: 100vw;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  margin: 10px;
+  padding: 10px;
+  flex-grow: 1;
+  border-radius: 4px;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12)!important;
+  transition-duration: 0.25s;
+  user-select: none;
+}
+
+.card.clickable:hover {
+  cursor: pointer;
+  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2),0 5px 8px 0 rgba(0,0,0,.14),0 1px 14px 0 rgba(0,0,0,.12)!important;
+}
+.card.clickable:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
