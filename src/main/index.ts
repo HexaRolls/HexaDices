@@ -1,98 +1,126 @@
+// Libs
 import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
-import './dialog'
-import { Logger } from './logger'
-import { initialize } from './services'
+import { initRenderer } from 'electron-store'
 import { autoUpdater } from 'electron-updater'
-// import createBaseWorker from './workers/index?worker'
-import indexPreload from '/@preload/index'
-// import anotherPreload from '/@preload/another'
-import indexHtmlUrl from '/@renderer/index.html'
-// import sideHtmlUrl from '/@renderer/side.html'
-import logoUrl from '/@static/logo.png'
-import Store from 'electron-store'
-import Bonjour from 'bonjour'
+import { debounce } from 'lodash'
 import { Client } from 'discord-rpc'
-const bonjour = Bonjour()
 
-const bonjourConfig = {
-  name: 'HexaDices SelfHost Server',
-  type: 'HDSS',
-  port: 12060
-}
+import electronWindowState from 'electron-window-state'
+import Bonjour from 'bonjour'
 
-Store.initRenderer()
-let mainWindow: BrowserWindow
+// Utils
+import { initialize } from './services'
+import { Logger } from './logger'
+import './dialog'
 
-const client = new Client({ transport: 'ipc' })
-const startTimestamp = new Date()
+// Preload
+import indexPreload from '/@preload/index'
 
-async function setActivity() {
-  if (!client || !mainWindow) return
-  mainWindow.webContents.send('discord:askRouteData')
-}
+// Renderer
+import indexHtmlUrl from '/@renderer/index.html'
 
-async function main() {
-  const logger = new Logger()
-  logger.initialize(app.getPath('userData'))
-  initialize(logger)
-  app.whenReady().then(() => {
+// Static Assets
+import logoUrl from '/@static/logo.png'
+
+/**
+ * Primary Class for main process
+ *
+ * @class Main
+ */
+class Main {
+  private mainWindow?: BrowserWindow
+  private logger = new Logger()
+  private client = new Client({ transport: 'ipc' })
+  private startTimestamp = new Date()
+  private bonjour = Bonjour()
+
+  private clientID: string = '833448361738633287'
+  private windowState = electronWindowState({
+    defaultWidth: 1400,
+    defaultHeight: 800
+  })
+
+  private bonjourConfig = {
+    name: 'HexaDices SelfHost Server',
+    type: 'HDSS',
+    port: 12060
+  }
+
+  init() {
+    if (!app.requestSingleInstanceLock()) {
+      app.quit()
+    }
+
+    initRenderer()
+    this.logger.initialize(app.getPath('userData'))
+    initialize(this.logger)
+
+    app.on('ready', this.onReady.bind(this))
+    app.on('window-all-closed', this.onWindowAllClosed.bind(this))
+    app.on('activate', this.onActivate.bind(this))
+
+    this.client.login({ clientId: this.clientID }).catch(err => this.logger.error(err))
+  }
+
+  onReady() {
+    this.mainWindow = this.createWindow()
+
     // Auto-Update
     if (process.env.NODE_ENV === 'production') {
       try {
+        this.logger.log('Checking for update...')
         autoUpdater.checkForUpdates()
       } catch (error) {
-        logger.error(error)
+        this.logger.error(error)
       }
     }
 
-    const mainWindow = createWindow()
-    mainWindow.on('maximize', () => {
-      mainWindow.webContents.send('maximize', null)
+    this.mainWindow.on('resize', debounce(this.windowState.saveState, 500))
+    this.mainWindow.on('move', debounce(this.windowState.saveState, 500))
+
+    this.mainWindow.on('maximize', () => {
+      this.mainWindow?.webContents.send('maximize', null)
     })
-    mainWindow.on('unmaximize', () => {
-      mainWindow.webContents.send('minimize', null)
+    this.mainWindow.on('unmaximize', () => {
+      this.mainWindow?.webContents.send('minimize', null)
     })
-    mainWindow.on('minimize', () => {
-      mainWindow.webContents.send('minimize', null)
+    this.mainWindow.on('minimize', () => {
+      this.mainWindow?.webContents.send('minimize', null)
     })
     ipcMain.on('history:back', () => {
-      mainWindow.webContents.goBack()
+      this.mainWindow?.webContents.goBack()
       console.log('going back')
     })
     ipcMain.on('history:forward', () => {
-      mainWindow.webContents.goForward()
+      this.mainWindow?.webContents.goForward()
       console.log('going forward')
     })
     ipcMain.on('host:start', (e) => {
       try {
-        const webServer = bonjour.publish(bonjourConfig)
+        const webServer = this.bonjour.publish(this.bonjourConfig)
         e.sender.send('host:started', webServer.host)
       } catch (error) {
-        logger.error(error)
+        this.logger.error(error)
       }
     })
     ipcMain.on('host:stop', (e) => {
-      bonjour.unpublishAll(() => {
+      this.bonjour.unpublishAll(() => {
         e.sender.send('host:stopped')
       })
     })
     ipcMain.on('host:search', (e) => {
-      bonjour.find({
+      this.bonjour.find({
         type: 'HDSS'
       }, function (service: any) {
         e.sender.send('host:found', service)
       })
     })
-    // const [x, y] = main.getPosition()
-    // const side = createSecondWindow()
-    // side.setPosition(x + 800 + 5, y)
-
 
     ipcMain.on('discord:routeData', (e, route) => {
-      client.setActivity({
+      this.client.setActivity({
         details: route.meta.details || route.name,
         state: route.meta.state || undefined,
-        startTimestamp,
+        startTimestamp: this.startTimestamp,
         largeImageKey: route.meta.largeImageKey || 'hexagon_hexadices_dark_512x512',
         largeImageText: route.meta.largeImageText || (typeof route.meta.details !== 'undefined') ? route.name : undefined,
         smallImageKey: route.meta.smallImageKey || undefined,
@@ -104,71 +132,61 @@ async function main() {
       })
     })
 
-    client.on('ready', () => {
-      setActivity()
+    autoUpdater.on('update-downloaded', () => {
+      autoUpdater.quitAndInstall()
+    })
+
+    this.client.on('ready', () => {
+      this.setActivity()
 
       setInterval(() => {
-        setActivity()
+        this.setActivity()
       }, 15e3)
     })
-  })
-  // thread_worker example
-  // createBaseWorker({ workerData: 'worker world' }).on('message', (message) => {
-  //   logger.log(`Message from worker: ${message}`)
-  // }).postMessage('')
-}
-
-function createWindow() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    height: 800,
-    width: 1400,
-    webPreferences: {
-      preload: indexPreload,
-      contextIsolation: true,
-      nodeIntegration: false,
-      webviewTag: true
-    },
-    icon: logoUrl,
-    frame: false,
-    backgroundColor: '#232430'
-  })
-
-  nativeTheme.themeSource = 'dark'
-  mainWindow.loadURL(indexHtmlUrl)
-  return mainWindow
-}
-
-// function createSecondWindow() {
-//   const sideWindow = new BrowserWindow({
-//     height: 600,
-//     width: 300,
-//     webPreferences: {
-//       preload: anotherPreload,
-//       contextIsolation: true,
-//       nodeIntegration: false
-//     }
-//   })
-
-//   sideWindow.loadURL(sideHtmlUrl)
-//   return sideWindow
-// }
-
-// ensure app start as single instance
-if (!app.requestSingleInstanceLock()) {
-  app.quit()
-}
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
   }
-})
 
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
+  async setActivity() {
+    if (!this.client || !this.mainWindow) return
+    this.mainWindow.webContents.send('discord:askRouteData')
+  }
 
-process.nextTick(main)
+  onWindowAllClosed() {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  }
 
-client.login({ clientId: '833448361738633287' }).catch(err => console.log(err))
+  onActivate() {
+    if (!this.mainWindow) {
+      this.createWindow()
+    }
+  }
+
+  createWindow() {
+    const mainWindow = new BrowserWindow({
+      x: this.windowState.x,
+      y: this.windowState.y,
+
+      width: this.windowState.width,
+      height: this.windowState.height,
+
+      webPreferences: {
+        preload: indexPreload,
+        contextIsolation: true,
+        nodeIntegration: false,
+        webviewTag: true
+      },
+
+      icon: logoUrl,
+      frame: false,
+      backgroundColor: '#232430'
+    })
+
+    nativeTheme.themeSource = 'dark'
+    mainWindow.loadURL(indexHtmlUrl)
+
+    return mainWindow
+  }
+}
+
+(new Main()).init()
