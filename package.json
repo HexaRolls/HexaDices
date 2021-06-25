@@ -1,6 +1,6 @@
 {
   "name": "HexaDices",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "private": true,
   "description": "Interface pour la gestion de RP en ligne",
   "repository": {

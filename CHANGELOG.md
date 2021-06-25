@@ -1,3 +1,19 @@
+## [1.0.0](https://github.com/HexaRolls/HexaDices/compare/v0.0.2...v1.0.0) (2021-06-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Adding Discord RPC dependancy
+
+### Features
+
+* **discord:** Adding Discord RichPresence Status ([dd731b1](https://github.com/HexaRolls/HexaDices/commit/dd731b10d344fd116884e363cd9098e43acbc989))
+
+
+### Code Refactoring
+
+* Adding Discord RPC dependancy ([bf90d8e](https://github.com/HexaRolls/HexaDices/commit/bf90d8e8c721f8f732e9e4e2685dea6359278054))
+
 ### 0.0.2 (2021-06-23)
 
 
