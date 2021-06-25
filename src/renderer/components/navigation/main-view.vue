@@ -1,6 +1,6 @@
 <template>
   <n-spin :show="loading" style="height: calc(100% - 39px - 44px)">
-    <webview v-if="vue.type === 'webview'" key="webview" :id="vue.id + '-webview'" :src="vue.url" style="height: 100%" webpreferences="enableremotemodule=no, contextisolation=yes"></webview>
+    <webview v-if="vue.type === 'webview'" key="webview" :id="vue.id + '-webview'" :src="vue.url" style="height: 100%" webpreferences="enableremotemodule=no, contextisolation=yes"/>
     <heroic-view v-else-if="vue.type === 'heroic'" key="heroic" :save="save"/>
   </n-spin>
 </template>
