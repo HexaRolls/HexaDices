@@ -12,13 +12,18 @@ const router = createRouter({
       path: '/',
       component: Welcome,
       name: 'Accueil',
-      meta: { transitionName: 'slide' }
+      meta: {
+        transitionName: 'slide',
+        details: "Dans l'accueil"
+      }
     },
     {
       path: '/about/',
       component: About,
       name: 'A propos',
-      meta: { transitionName: 'slide' }
+      meta: {
+        transitionName: 'slide'
+      }
     },
     {
       path: '/welcome',
@@ -41,20 +46,37 @@ const router = createRouter({
       path: '/games',
       component: gameList,
       name: 'Mes parties',
-      meta: { transitionName: 'slide' }
+      meta: {
+        transitionName: 'slide',
+        details: 'Gères ses parties',
+        smallImageKey: 'hexagon_list_light_512x512'
+      }
     },
     {
       path: '/play/:id',
       component: gameView,
       name: 'Partie active',
-      meta: { transitionName: 'slide' }
+      meta: {
+        transitionName: 'slide',
+        details: 'Dans une partie',
+        state: 'En solo',
+        largeImageKey: 'hexagon_list_dark_512x512',
+        smallImageKey: 'hexagon_profile_light_512x512',
+        smallImageText: 'Maître de jeu',
+        partySize: 1,
+        partyMax: 1
+      }
     },
     {
       path: '/profile',
       component: About,
       name: 'Mon profil HexaRolls',
       meta: {
-        transitionName: 'slide'
+        transitionName: 'slide',
+        details: 'Paramètre son profil',
+        largeImageKey: 'hexagon_profile_light_512x512',
+        smallImageKey: 'hexagon_hexarolls_light_512x512',
+        smallImageText: 'HexaRolls'
       }
     }
   ]

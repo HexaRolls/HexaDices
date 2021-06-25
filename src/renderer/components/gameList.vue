@@ -3,6 +3,11 @@
     <header id="search-bar">
       <n-button @click="toggleAdd">Adding test</n-button>
     </header>
+    <n-empty v-if="!games.length" class="game-list" description="Aucune partie disponible">
+      <template #extra>
+        <n-button @click="toggleAdd">Créez en une !</n-button>
+      </template>
+    </n-empty>
     <draggable
       :class="['game-list', { 'dragging': drag }]"
       tag="transition-group" item-key="id"
@@ -56,7 +61,7 @@
 
 <script lang="ts">
 import { defineComponent, VNode } from 'vue'
-import { NPopconfirm, NButton } from 'naive-ui'
+import { NPopconfirm, NButton, NEmpty } from 'naive-ui'
 import draggable from 'vuedraggable/src/vuedraggable'
 import { useService } from '../hooks'
 import { Game } from '/@shared/games'
@@ -80,8 +85,7 @@ export default defineComponent({
       this.$refs.addSaveDrawer.toggle()
     },
     async getGames() {
-      this.games = await Store.getStoreValue(
-        'saved', 'games', [])
+      this.games = await Store.getStoreValue('saved', 'games', [])
     },
     updateArray(updaded: any = {}) {
       if ('added' in updaded) {
@@ -136,7 +140,8 @@ export default defineComponent({
     draggable,
     NPopconfirm,
     NButton,
-    GameAddDrawer
+    GameAddDrawer,
+    NEmpty
   }
 })
 </script>

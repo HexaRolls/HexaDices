@@ -14,6 +14,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useLoadingBar } from 'naive-ui'
+import { useIpc } from '../../hooks'
 const DEFAULT_TRANSITION = 'fade'
 const DEFAULT_TRANSITION_MODE = 'out-in'
 
@@ -79,15 +80,23 @@ export default defineComponent({
     this.$router.onError(() => {
       this.loadingError()
     })
+
+    useIpc().on('discord:askRouteData', () => {
+      useIpc().send('discord:routeData', {
+        name: this.$route.name,
+        path: this.$route.path,
+        meta: this.$route.meta
+      })
+    })
   },
   methods: {
     beforeLeave(element: HTMLElement) {
-      this.prevHeight = getComputedStyle(element).height
+      this.prevHeight = Number(getComputedStyle(element).height)
     },
     enter(element: HTMLElement) {
       const { height } = getComputedStyle(element)
 
-      element.style.height = this.prevHeight
+      element.style.height = String(this.prevHeight)
 
       setTimeout(() => {
         element.style.height = height

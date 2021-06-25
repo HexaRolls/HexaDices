@@ -3,7 +3,7 @@ import './dialog'
 import { Logger } from './logger'
 import { initialize } from './services'
 import { autoUpdater } from 'electron-updater'
-import createBaseWorker from './workers/index?worker'
+// import createBaseWorker from './workers/index?worker'
 import indexPreload from '/@preload/index'
 // import anotherPreload from '/@preload/another'
 import indexHtmlUrl from '/@renderer/index.html'
@@ -11,6 +11,7 @@ import indexHtmlUrl from '/@renderer/index.html'
 import logoUrl from '/@static/logo.png'
 import Store from 'electron-store'
 import Bonjour from 'bonjour'
+import { Client } from 'discord-rpc'
 const bonjour = Bonjour()
 
 const bonjourConfig = {
@@ -20,6 +21,15 @@ const bonjourConfig = {
 }
 
 Store.initRenderer()
+let mainWindow: BrowserWindow
+
+const client = new Client({ transport: 'ipc' })
+const startTimestamp = new Date()
+
+async function setActivity() {
+  if (!client || !mainWindow) return
+  mainWindow.webContents.send('discord:askRouteData')
+}
 
 async function main() {
   const logger = new Logger()
@@ -35,22 +45,22 @@ async function main() {
       }
     }
 
-    const main = createWindow()
-    main.on('maximize', () => {
-      main.webContents.send('maximize', null)
+    const mainWindow = createWindow()
+    mainWindow.on('maximize', () => {
+      mainWindow.webContents.send('maximize', null)
     })
-    main.on('unmaximize', () => {
-      main.webContents.send('minimize', null)
+    mainWindow.on('unmaximize', () => {
+      mainWindow.webContents.send('minimize', null)
     })
-    main.on('minimize', () => {
-      main.webContents.send('minimize', null)
+    mainWindow.on('minimize', () => {
+      mainWindow.webContents.send('minimize', null)
     })
     ipcMain.on('history:back', () => {
-      main.webContents.goBack()
+      mainWindow.webContents.goBack()
       console.log('going back')
     })
     ipcMain.on('history:forward', () => {
-      main.webContents.goForward()
+      mainWindow.webContents.goForward()
       console.log('going forward')
     })
     ipcMain.on('host:start', (e) => {
@@ -76,16 +86,41 @@ async function main() {
     // const [x, y] = main.getPosition()
     // const side = createSecondWindow()
     // side.setPosition(x + 800 + 5, y)
+
+
+    ipcMain.on('discord:routeData', (e, route) => {
+      client.setActivity({
+        details: route.meta.details || route.name,
+        state: route.meta.state || undefined,
+        startTimestamp,
+        largeImageKey: route.meta.largeImageKey || 'hexagon_hexadices_dark_512x512',
+        largeImageText: route.meta.largeImageText || (typeof route.meta.details !== 'undefined') ? route.name : undefined,
+        smallImageKey: route.meta.smallImageKey || undefined,
+        smallImageText: route.meta.smallImageText || undefined,
+        partySize: route.meta.partySize || 0,
+        partyMax: route.meta.partyMax || 0,
+        instance: !!route.meta.partyId || false,
+        partyId: route.meta.partyId || undefined
+      })
+    })
+
+    client.on('ready', () => {
+      setActivity()
+
+      setInterval(() => {
+        setActivity()
+      }, 15e3)
+    })
   })
   // thread_worker example
-  createBaseWorker({ workerData: 'worker world' }).on('message', (message) => {
-    logger.log(`Message from worker: ${message}`)
-  }).postMessage('')
+  // createBaseWorker({ workerData: 'worker world' }).on('message', (message) => {
+  //   logger.log(`Message from worker: ${message}`)
+  // }).postMessage('')
 }
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     height: 800,
     width: 1400,
     webPreferences: {
@@ -135,3 +170,5 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 process.nextTick(main)
+
+client.login({ clientId: '833448361738633287' }).catch(err => console.log(err))
