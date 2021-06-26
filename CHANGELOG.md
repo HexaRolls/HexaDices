@@ -1,3 +1,15 @@
+## [1.1.0](https://github.com/HexaRolls/HexaDices/compare/v1.0.0...v1.1.0) (2021-06-26)
+
+
+### Features
+
+* **autoUpdate:** Adding on screen update download ([96ec11b](https://github.com/HexaRolls/HexaDices/commit/96ec11b550da12b05e25793707a0e7e4d9bedaed))
+
+
+### Bug Fixes
+
+* correct repo value ([b503224](https://github.com/HexaRolls/HexaDices/commit/b503224be87b985ada48564a505d6528c2f4728f))
+
 ## [1.0.0](https://github.com/HexaRolls/HexaDices/compare/v0.0.2...v1.0.0) (2021-06-25)
 
 
