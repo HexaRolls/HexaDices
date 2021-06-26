@@ -9,9 +9,18 @@ import electronWindowState from 'electron-window-state'
 import Bonjour from 'bonjour'
 
 // Utils
+import { IpcChannelInterface } from './IPC/IpcChannelInterface'
 import { initialize } from './services'
 import { Logger } from './logger'
 import './dialog'
+
+// Listeners
+import HistoryBack from './IPC/history/back'
+import HistoryForward from './IPC/history/forward'
+import HostSearch from './IPC/host/search'
+import HostStop from './IPC/host/stop'
+import UpdateCheck from './IPC/update/check'
+import UpdateReload from './IPC/update/reload'
 
 // Preload
 import indexPreload from '/@preload/index'
@@ -27,12 +36,12 @@ import logoUrl from '/@static/logo.png'
  *
  * @class Main
  */
-class Main {
-  private mainWindow?: BrowserWindow
-  private logger = new Logger()
-  private client = new Client({ transport: 'ipc' })
-  private startTimestamp = new Date()
-  private bonjour = Bonjour()
+export class Main {
+  public mainWindow?: BrowserWindow
+  public logger = new Logger()
+  public client = new Client({ transport: 'ipc' })
+  public startTimestamp = new Date()
+  public bonjour = Bonjour()
 
   private clientID: string = '833448361738633287'
   private windowState = electronWindowState({
@@ -40,13 +49,13 @@ class Main {
     defaultHeight: 800
   })
 
-  private bonjourConfig = {
+  public bonjourConfig = {
     name: 'HexaDices SelfHost Server',
     type: 'HDSS',
     port: 12060
   }
 
-  init() {
+  init(ipcChannels: IpcChannelInterface[]) {
     if (!app.requestSingleInstanceLock()) {
       app.quit()
     }
@@ -59,6 +68,7 @@ class Main {
     app.on('window-all-closed', this.onWindowAllClosed.bind(this))
     app.on('activate', this.onActivate.bind(this))
 
+    this.registerIpcChannels(ipcChannels)
     this.client.login({ clientId: this.clientID }).catch(err => this.logger.error(err))
   }
 
@@ -87,34 +97,6 @@ class Main {
     this.mainWindow.on('minimize', () => {
       this.mainWindow?.webContents.send('minimize', null)
     })
-    ipcMain.on('history:back', () => {
-      this.mainWindow?.webContents.goBack()
-      console.log('going back')
-    })
-    ipcMain.on('history:forward', () => {
-      this.mainWindow?.webContents.goForward()
-      console.log('going forward')
-    })
-    ipcMain.on('host:start', (e) => {
-      try {
-        const webServer = this.bonjour.publish(this.bonjourConfig)
-        e.sender.send('host:started', webServer.host)
-      } catch (error) {
-        this.logger.error(error)
-      }
-    })
-    ipcMain.on('host:stop', (e) => {
-      this.bonjour.unpublishAll(() => {
-        e.sender.send('host:stopped')
-      })
-    })
-    ipcMain.on('host:search', (e) => {
-      this.bonjour.find({
-        type: 'HDSS'
-      }, function (service: any) {
-        e.sender.send('host:found', service)
-      })
-    })
 
     ipcMain.on('discord:routeData', (e, route) => {
       this.client.setActivity({
@@ -132,8 +114,16 @@ class Main {
       })
     })
 
-    autoUpdater.on('update-downloaded', () => {
-      autoUpdater.quitAndInstall()
+    autoUpdater.on('update-downloaded', data => {
+      this.mainWindow?.webContents.send('update:downloaded', data)
+    })
+
+    autoUpdater.on('download-progress', data => {
+      this.mainWindow?.webContents.send('update:progress', data)
+    })
+
+    autoUpdater.on('error', data => {
+      this.mainWindow?.webContents.send('update:error', data)
     })
 
     this.client.on('ready', () => {
@@ -187,6 +177,20 @@ class Main {
 
     return mainWindow
   }
+
+  private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {
+    ipcChannels.forEach(channel => {
+      this.logger.log(`Registering "${channel.getName()}"`)
+      ipcMain.on(channel.getName(), (event, request) => channel.handle(event, this, request))
+    })
+  }
 }
 
-(new Main()).init()
+(new Main()).init([
+  new HistoryBack(),
+  new HistoryForward(),
+  new HostSearch(),
+  new HostStop(),
+  new UpdateCheck(),
+  new UpdateReload()
+])
