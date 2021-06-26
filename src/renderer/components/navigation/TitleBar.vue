@@ -2,7 +2,7 @@
   <header id="window-bar" :class="{ 'maximized': isMaximized }">
     <div id="drag-region">
       <div id="window-title">
-        <span>HexaDices {{ $route.name ? `- ${String($route.name)}` : null }}</span>
+        <span class="appTitle">HexaDices {{ $route.name ? `- ${String($route.name)}` : null }}</span>
         <div id="window-buttons">
           <n-popover trigger="hover" placement="bottom">
             <template #trigger>
@@ -28,6 +28,7 @@
             </template>
             <span>Report un bug</span>
           </n-popover>
+          <update-button />
         </div>
       </div>
 
@@ -59,6 +60,7 @@
 import { defineComponent } from 'vue'
 import { useService, useIpc } from '../../hooks'
 import { NPopover } from 'naive-ui'
+import UpdateButton from '../utils/updateButton.vue'
 const win = useService('WindowsControl')
 
 export default defineComponent({
@@ -74,16 +76,23 @@ export default defineComponent({
     useIpc().on('minimize', () => {
       this.isMaximized = false
     })
+    useIpc().on('update:checked', (e, data) => {
+      console.log(data)
+    })
   },
   methods: {
     minimize: win.minimize,
     toggleMaximize() {
       win.toggle()
     },
-    close: win.close
+    close: win.close,
+    checkForUpdate() {
+      useIpc().send('update:check')
+    }
   },
   components: {
-    NPopover
+    NPopover,
+    UpdateButton
   }
 })
 </script>
@@ -164,7 +173,7 @@ export default defineComponent({
   font-family: "Baumans", sans-serif
   font-size: 20px
 
-  span
+  .appTitle
     flex: 1 0 auto
     margin: 0 8px
 
@@ -189,7 +198,7 @@ export default defineComponent({
       &:is(&:hover, &:focus):not(&:disabled)
         background-color: rgba(0, 0, 0, .5)
 
-  span
+  .appTitle
     overflow: hidden
     text-overflow: ellipsis
     white-space: nowrap
