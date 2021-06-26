@@ -1,7 +1,7 @@
 <template>
   <n-grid :cols="3" style="height: 100%; text-align: left">
     <n-grid-item v-for="user in save.users" :key="user.id">
-      <n-thing>
+      <n-thing class="heroicView">
         <template #avatar>
           <icon style="margin: 1em" :status="userStatus(user)" />
         </template>
@@ -66,7 +66,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.n-thing {
+.n-thing.heroicView {
   height: 100%;
   padding: 1em;
   background: linear-gradient(#232430, transparent, #232430), url('../assets/images/6b9e8aaf91df33931508a010bc9459b5.png');
