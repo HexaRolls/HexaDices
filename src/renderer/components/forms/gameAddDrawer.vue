@@ -113,6 +113,7 @@ export default defineComponent({
             saveName: null,
             saveDesc: null
           }
+          this.toggle()
         } else {
           console.log(errors)
         }
@@ -130,7 +131,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style>
-
-</style>

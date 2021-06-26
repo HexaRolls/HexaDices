@@ -1,7 +1,29 @@
 <template>
   <article class="container">
     <header id="search-bar">
-      <n-button @click="toggleAdd">Adding test</n-button>
+      <h2>Liste des parties</h2>
+      <n-space class="searchBarActions">
+        <n-popover trigger="hover" placement="bottom">
+          <template #trigger>
+            <n-button size="large" circle @click="toggleAdd">
+              <template #icon>
+                <plus />
+              </template>
+            </n-button>
+          </template>
+          <span>Ajouter une partie</span>
+        </n-popover>
+        <n-popover trigger="hover" placement="bottom-end">
+          <template #trigger>
+            <n-button size="large" circle @click="toggleSearch">
+              <template #icon>
+                <list-search />
+              </template>
+            </n-button>
+          </template>
+          <span>Rechercher une partie</span>
+        </n-popover>
+      </n-space>
     </header>
     <n-empty v-if="!games.length" class="game-list" description="Aucune partie disponible">
       <template #extra>
@@ -55,23 +77,24 @@
       </template>
     </draggable>
 
+    <game-search-drawer ref="searchSaveDrawer" :games="games" @add="toggleAdd" @delete="handleDelete" />
     <game-add-drawer ref="addSaveDrawer" :games="games" @adding="handleAdd"/>
   </article>
 </template>
 
 <script lang="ts">
 import { defineComponent, VNode } from 'vue'
-import { NPopconfirm, NButton, NEmpty } from 'naive-ui'
-import draggable from 'vuedraggable/src/vuedraggable'
+import { NPopconfirm, NButton, NEmpty, NPopover, NSpace } from 'naive-ui'
 import { useService } from '../hooks'
 import { Game } from '/@shared/games'
+import draggable from 'vuedraggable/src/vuedraggable'
 import GameAddDrawer from './forms/gameAddDrawer.vue'
+import GameSearchDrawer from './forms/gameSearchDrawer.vue'
+import Plus from './utils/icons/plus.vue'
+import ListSearch from './utils/icons/listSearch.vue'
 const Store = useService('PersistentStore')
 
 export default defineComponent({
-  mounted() {
-    this.getGames()
-  },
   data() {
     return {
       games: [] as Game[],
@@ -80,12 +103,18 @@ export default defineComponent({
       adding: true
     }
   },
+  mounted() {
+    this.getGames()
+  },
   methods: {
+    async getGames() {
+      this.games = await Store.getStoreValue('saved', 'games', [])
+    },
     toggleAdd() {
       this.$refs.addSaveDrawer.toggle()
     },
-    async getGames() {
-      this.games = await Store.getStoreValue('saved', 'games', [])
+    toggleSearch() {
+      this.$refs.searchSaveDrawer.toggle()
     },
     updateArray(updaded: any = {}) {
       if ('added' in updaded) {
@@ -141,7 +170,12 @@ export default defineComponent({
     NPopconfirm,
     NButton,
     GameAddDrawer,
-    NEmpty
+    GameSearchDrawer,
+    NEmpty,
+    NPopover,
+    Plus,
+    ListSearch,
+    NSpace
   }
 })
 </script>
@@ -158,6 +192,13 @@ export default defineComponent({
   width: 100%
   height: 5em
   background-color: rgba(0, 0, 0, .15)
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 0 5em
+  white-space: nowrap
+  overflow: hidden
+  column-gap: 1em
 
 .game-list
   width: 100%

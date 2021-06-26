@@ -132,6 +132,7 @@ export default defineComponent({
             userDesc: null,
             userStatus: 'active'
           }
+          this.toggle()
         } else {
           console.log(errors)
         }
