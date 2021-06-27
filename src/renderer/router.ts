@@ -4,6 +4,7 @@ import About from '/@/components/About.vue'
 import Welcome from '/@/components/Welcome.vue'
 import gameList from '/@/components/gameList.vue'
 import gameView from '/@/components/gameView.vue'
+import Settings from '/@/components/Settings.vue'
 
 const router = createRouter({
   history: createMemoryHistory(window.location.pathname),
@@ -50,6 +51,15 @@ const router = createRouter({
         transitionName: 'slide',
         details: 'Gères ses parties',
         smallImageKey: 'hexagon_list_light_512x512'
+      }
+    },
+    {
+      path: '/settings',
+      component: Settings,
+      name: 'Paramètres',
+      meta: {
+        transitionName: 'slide',
+        details: 'Change ses options'
       }
     },
     {

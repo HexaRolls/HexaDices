@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <div>Electron Version: {{ version }} </div>
+  <div style="height: 70%;display: grid;align-content: center">
+    <div>App Version: {{ version }} </div>
     <div>Appdata Path: {{ path }} </div>
     <div>Running Platform: {{ platform }} </div>
   </div>

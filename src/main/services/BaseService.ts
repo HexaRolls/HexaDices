@@ -4,12 +4,10 @@ import { Service } from './Service'
 
 export class BaseService extends Service {
   async getBasicInformation() {
-    this.log('getBasicInformation is called!')
-    const result = {
+    return {
       platform: platform(),
       version: app.getVersion(),
       root: app.getPath('userData')
     }
-    return result
   }
 }
