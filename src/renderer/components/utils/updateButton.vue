@@ -75,7 +75,7 @@ export default defineComponent({
     useIpc().on('update:progress', (e, data) => {
       console.log(data)
       this.updating = true
-      this.percentage = data.percent
+      this.percentage = Math.ceil(data.percent)
     })
 
     useIpc().on('update:error', (e, data) => {
