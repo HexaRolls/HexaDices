@@ -1,3 +1,15 @@
+## [1.3.0](https://github.com/HexaRolls/HexaDices/compare/v1.2.0...v1.3.0) (2021-06-27)
+
+
+### Features
+
+* **Settings:** Adding a settings menu with about ([1f98a5a](https://github.com/HexaRolls/HexaDices/commit/1f98a5a48dbee51da2187e77394d528e6f902485))
+
+
+### Bug Fixes
+
+* Update percentage rounded ([fe51afc](https://github.com/HexaRolls/HexaDices/commit/fe51afcf38a1c163b33c2b60d31301bb59f5331f))
+
 ## [1.2.0](https://github.com/HexaRolls/HexaDices/compare/v1.1.0...v1.2.0) (2021-06-26)
 
 
