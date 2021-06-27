@@ -1,3 +1,15 @@
+## [1.2.0](https://github.com/HexaRolls/HexaDices/compare/v1.1.0...v1.2.0) (2021-06-26)
+
+
+### Features
+
+* **gameList:** Reworked layout in save menu ([75740bf](https://github.com/HexaRolls/HexaDices/commit/75740bfc8905b37e2d4fafa598a780f4b26e2066))
+
+
+### Bug Fixes
+
+* scoped sass for use of NThing outside ([6dcb8fd](https://github.com/HexaRolls/HexaDices/commit/6dcb8fda14d50e8ecd6d8e5294204c1a341b4310))
+
 ## [1.1.0](https://github.com/HexaRolls/HexaDices/compare/v1.0.0...v1.1.0) (2021-06-26)
 
 
