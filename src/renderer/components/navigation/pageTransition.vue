@@ -115,6 +115,7 @@ export default defineComponent({
     &-enter-active, &-leave-active
         opacity: 1
         transform: none
+        transition: initial
         transition-duration: #{$duration}
         transition-property: #{$properties}
         transition-timing-function: #{$timing}
