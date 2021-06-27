@@ -23,7 +23,6 @@ main {
 #app {
   font-family: 'Nunito', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  text-align: center;
   color: #BFC9D4;
   min-height: 100vh;
   display: flex;
