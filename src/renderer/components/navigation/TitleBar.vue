@@ -106,6 +106,7 @@ export default defineComponent({
   width: 100%
   background: #13131A
   max-width: calc(100vw - 2px)
+  z-index: 99999
 
   #drag-region
     width: 100%
