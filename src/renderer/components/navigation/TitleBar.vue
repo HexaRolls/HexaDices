@@ -81,11 +81,15 @@ export default defineComponent({
     })
   },
   methods: {
-    minimize: win.minimize,
+    minimize() {
+      win.minimize()
+    },
     toggleMaximize() {
       win.toggle()
     },
-    close: win.close,
+    close() {
+      win.close()
+    },
     checkForUpdate() {
       useIpc().send('update:check')
     }
