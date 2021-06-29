@@ -10,5 +10,5 @@ export interface IpcRequest {
 export interface IpcChannelInterface {
   getName(): string
 
-  handle(event: IpcMainEvent, main: Main, request: IpcRequest): void;
+  handle(event: IpcMainEvent, main: Main, request: any): void;
 }
