@@ -4,6 +4,7 @@ import About from '/@/components/About.vue'
 import Welcome from '/@/components/Welcome.vue'
 import gameList from '/@/components/gameList.vue'
 import gameView from '/@/components/gameView.vue'
+import BugReport from '/@/components/BugReport.vue'
 import Settings from '/@/components/Settings.vue'
 
 const router = createRouter({
@@ -37,7 +38,7 @@ const router = createRouter({
     },
     {
       path: '/bugReport',
-      component: Welcome,
+      component: BugReport,
       name: 'Report un bug',
       meta: {
         transitionName: 'slide'
