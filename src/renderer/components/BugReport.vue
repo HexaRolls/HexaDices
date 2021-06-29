@@ -59,7 +59,6 @@
 import { defineComponent, reactive, toRefs, ref } from 'vue'
 import { NCard, NForm, NFormItem, NInput, NResult, NButton, NSpace, NCheckbox, NCheckboxGroup } from 'naive-ui'
 import { useIpc, useService } from '../hooks'
-import { log } from 'util'
 
 export default defineComponent({
   setup() {
