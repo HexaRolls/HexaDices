@@ -33,11 +33,50 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, h } from 'vue'
 import { useIpc } from '../../hooks'
-import { NPopover, NProgress, NText } from 'naive-ui'
+import { NPopover, NProgress, NText, useNotification, NIcon, NButton } from 'naive-ui'
+import SoftwareDownload from '../utils/icons/softwareDownload.vue'
 
 export default defineComponent({
+  setup() {
+    const notification = useNotification()
+
+    return {
+      sendUpdateNotification(version) {
+        const date = new Date()
+        function checkTime(i) {
+          return (i < 10) ? '0' + i : i
+        }
+
+        const n = notification.create({
+          title: 'Une mise à jour est disponible',
+          description: `v${version}`,
+          meta: `${checkTime(date.getHours())}:${checkTime(date.getMinutes())}`,
+          avatar: () => h(NIcon, {
+            size: 32
+          }, {
+            default: () => h(SoftwareDownload)
+          }),
+          action: () =>
+            h(
+              NButton,
+              {
+                text: true,
+                type: 'primary',
+                onClick: () => {
+                  this.reloadApp()
+                  n.destroy()
+                }
+              },
+              {
+                default: () => 'Redemarrer maintenant'
+              }
+            )
+        })
+      }
+    }
+  },
   data() {
     return {
       checking: false,
@@ -63,6 +102,7 @@ export default defineComponent({
       console.log(data)
       this.updating = true
       this.percentage = 100
+      this.sendUpdateNotification(data.info.version)
 
       setTimeout(() => {
         this.updating = false
