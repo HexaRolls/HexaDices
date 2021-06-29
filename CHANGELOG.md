@@ -1,3 +1,10 @@
+### [1.4.1](https://github.com/HexaRolls/HexaDices/compare/v1.4.0...v1.4.1) (2021-06-29)
+
+
+### Bug Fixes
+
+* Handle form validation, and http error status ([7eb98db](https://github.com/HexaRolls/HexaDices/commit/7eb98dba1b7f9711ff47e3212a18cc35edb28dd5))
+
 ## [1.4.0](https://github.com/HexaRolls/HexaDices/compare/v1.3.0...v1.4.0) (2021-06-29)
 
 
