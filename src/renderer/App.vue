@@ -1,14 +1,21 @@
 <template>
   <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
     <n-global-style />
-    <title-bar />
-    <main-navigation />
+
+    <n-loading-bar-provider>
+      <n-message-provider>
+        <n-notification-provider>
+          <title-bar />
+          <main-navigation />
+        </n-notification-provider>
+      </n-message-provider>
+    </n-loading-bar-provider>
   </n-config-provider>
 </template>
 
 <script lang=ts>
 import { defineComponent } from 'vue'
-import { NConfigProvider, darkTheme, NGlobalStyle } from 'naive-ui'
+import { NConfigProvider, darkTheme, NGlobalStyle, NLoadingBarProvider, NMessageProvider, NNotificationProvider } from 'naive-ui'
 import TitleBar from '/@/components/navigation/TitleBar.vue'
 import MainNavigation from '/@/components/MainNavigation.vue'
 
@@ -61,6 +68,9 @@ export default defineComponent({
     TitleBar,
     NConfigProvider,
     NGlobalStyle,
+    NLoadingBarProvider,
+    NMessageProvider,
+    NNotificationProvider,
     MainNavigation
   },
   data() {
