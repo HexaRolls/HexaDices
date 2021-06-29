@@ -56,13 +56,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, reactive, toRefs, ref } from 'vue'
 import { NCard, NForm, NFormItem, NInput, NResult, NButton, NSpace, NCheckbox, NCheckboxGroup } from 'naive-ui'
 import { useIpc, useService } from '../hooks'
 import { log } from 'util'
 
 export default defineComponent({
   setup() {
+    const formRef = ref(null)
     const { getBasicInformation } = useService('BaseService')
     const data = reactive({
       version: '',
@@ -77,7 +78,40 @@ export default defineComponent({
       data.chromeVersion = chromeVersion
     })
     return {
-      ...toRefs(data)
+      formRef,
+      ...toRefs(data),
+      handleValidateButtonClick(e) {
+        e.preventDefault()
+        formRef.value.validate((errors) => {
+          if (!errors) {
+            const IPC = useIpc()
+            this.loading = true
+
+            IPC.on('feedback:sendedReport', (e, [data, error]) => {
+              if (error) {
+                this.error = true
+                console.error(error)
+              } else if (data > 299) {
+                this.error = true
+                console.error(data)
+              } else {
+                this.success = true
+                console.log(data)
+              }
+            })
+
+            const data = JSON.parse(JSON.stringify({
+              title: this.model.title,
+              description: this.model.description,
+              auths: this.model.authCheckbox
+            }))
+
+            IPC.send('feedback:sendReport', data)
+          } else {
+            console.log(errors)
+          }
+        })
+      }
     }
   },
   mounted() {
@@ -108,30 +142,6 @@ export default defineComponent({
           required: false
         }
       }
-    }
-  },
-  methods: {
-    handleValidateButtonClick() {
-      const IPC = useIpc()
-      this.loading = true
-
-      IPC.on('feedback:sendedReport', (e, [data, error]) => {
-        if (error) {
-          this.error = true
-          console.error(error)
-        } else {
-          this.success = true
-          console.log(data)
-        }
-      })
-
-      const data = JSON.parse(JSON.stringify({
-        title: this.model.title,
-        description: this.model.description,
-        auths: this.model.authCheckbox
-      }))
-
-      IPC.send('feedback:sendReport', data)
     }
   },
   components: {
