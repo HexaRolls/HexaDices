@@ -7,6 +7,8 @@ export class BaseService extends Service {
     return {
       platform: platform(),
       version: app.getVersion(),
+      electronVersion: process.versions.electron,
+      chromeVersion: process.versions.chrome,
       root: app.getPath('userData')
     }
   }
