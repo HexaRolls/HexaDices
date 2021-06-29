@@ -1,3 +1,17 @@
+## [1.4.0](https://github.com/HexaRolls/HexaDices/compare/v1.3.0...v1.4.0) (2021-06-29)
+
+
+### Features
+
+* **BugReport:** Adding a functionnal bug report ([5e03ac4](https://github.com/HexaRolls/HexaDices/commit/5e03ac448236844a2daec22387baaed85b695a57))
+
+
+### Bug Fixes
+
+* always show titlebar ([9f49435](https://github.com/HexaRolls/HexaDices/commit/9f4943564c83dda526fdf1357980dedff874b267))
+* event delegation leading to error ([8951b3f](https://github.com/HexaRolls/HexaDices/commit/8951b3f4063b16e120ae16c9bf6c470416b5ca53))
+* transition between pages ([8e57c59](https://github.com/HexaRolls/HexaDices/commit/8e57c5992fbf392a1fdf39d5be52340f1c4f39d0))
+
 ## [1.3.0](https://github.com/HexaRolls/HexaDices/compare/v1.2.0...v1.3.0) (2021-06-27)
 
 
