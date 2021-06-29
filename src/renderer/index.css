@@ -80,3 +80,15 @@ main {
 .card.clickable:active {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+.n-modal-container {
+  margin-top: 32px !important;
+}
+
+.n-message-container {
+  margin-top: 32px !important;
+}
+
+.n-notification-container {
+  margin-top: 32px !important;
+}
