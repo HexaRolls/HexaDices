@@ -103,6 +103,7 @@
         Stop server
       </n-button> -->
 
+      <game-settings-modal ref="gameSettingsModal" :save="save" @userAdd="$refs.addUserDrawer.toggle()" @userDelete="null" />
       <user-add-drawer ref="addUserDrawer" :save="save" @adding="handleAddUser"/>
     </n-layout>
   </n-layout>
