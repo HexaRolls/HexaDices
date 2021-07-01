@@ -143,8 +143,9 @@ export default defineComponent({
           name: 'Maître de jeu',
           status: 'active',
           sheets: []
-        }]
-      })
+        }],
+        vues: []
+      } as Game)
       this.updateArray()
     },
     toggleFixed(event: MouseEvent, element: any) {
