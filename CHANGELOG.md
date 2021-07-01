@@ -1,3 +1,17 @@
+## [1.6.0](https://github.com/HexaRolls/HexaDices/compare/v1.5.0...v1.6.0) (2021-07-01)
+
+
+### Features
+
+* **dices:** Dice result render ([f5e6b5a](https://github.com/HexaRolls/HexaDices/commit/f5e6b5a2e631326ea4cc1fcc2bf140797eb98883))
+* **game:** Adding in-game settings pannel ([0710062](https://github.com/HexaRolls/HexaDices/commit/0710062928914e82ed88f34a3340f913771e6328))
+
+
+### Bug Fixes
+
+* Error if games emply resolved ([40c1557](https://github.com/HexaRolls/HexaDices/commit/40c1557bdcbc37ea19333acc2c503b77ee0cf8ca))
+* Vues being undefined ([47444b0](https://github.com/HexaRolls/HexaDices/commit/47444b0f2129f7d4e323f15068b1798499a66310))
+
 ## [1.5.0](https://github.com/HexaRolls/HexaDices/compare/v1.4.1...v1.5.0) (2021-06-29)
 
 
