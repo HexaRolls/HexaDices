@@ -51,8 +51,9 @@ import { Game } from '/@shared/games'
 export default defineComponent({
   props: {
     games: {
-      type: Array,
-      required: true
+      type: Array as () => Game[],
+      required: false,
+      default: null
     }
   },
   data() {
@@ -76,7 +77,7 @@ export default defineComponent({
         case !this.model?.saveName:
         case this.model?.saveName.length < 5:
           return 'error'
-        case this.games.some((save: any) => save.name === this.model?.saveName.trim()):
+        case this.games?.some((save: any) => save.name === this.model?.saveName.trim()):
           return 'warning'
         default:
           return undefined
@@ -87,7 +88,7 @@ export default defineComponent({
         case !this.model?.saveName:
         case this.model?.saveName.length < 5:
           return 'Vous devez donner un nom d\'un minimum de 5 caractères'
-        case this.games.some((save: any) => save.name === this.model?.saveName.trim()):
+        case this.games?.some((save: any) => save.name === this.model?.saveName.trim()):
           return 'Il est conseillé de donner un nom différent entre chaque parties'
         default:
           return 'Tout est en ordre !'
@@ -103,12 +104,13 @@ export default defineComponent({
       this.$refs.formRef.validate((errors: any) => {
         if (!errors) {
           console.log('Adding new save...')
-          const lastID = [...this.games].sort((a: any, b: any) => a - b).map((e: any) => e.id).pop()
+          let lastID = 0
+          if (this.games?.length) lastID = [...this.games].sort((a: any, b: any) => a - b).map((e: any) => e.id).pop()
           this.$emit('adding', {
             id: lastID + 1,
             name: this.model?.saveName.trim(),
             description: this.model?.saveDesc?.trim()
-          })
+          } as Game)
           this.model = {
             saveName: null,
             saveDesc: null
