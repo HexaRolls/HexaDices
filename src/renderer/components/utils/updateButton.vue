@@ -102,7 +102,7 @@ export default defineComponent({
       console.log(data)
       this.updating = true
       this.percentage = 100
-      this.sendUpdateNotification(data.info.version)
+      this.sendUpdateNotification(data.version)
 
       setTimeout(() => {
         this.updating = false
