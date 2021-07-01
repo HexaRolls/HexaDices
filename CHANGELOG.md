@@ -1,3 +1,10 @@
+### [1.6.1](https://github.com/HexaRolls/HexaDices/compare/v1.6.0...v1.6.1) (2021-07-01)
+
+
+### Bug Fixes
+
+* version error ([64aad5b](https://github.com/HexaRolls/HexaDices/commit/64aad5b3795c4660424a570355b466b7c7167bff))
+
 ## [1.6.0](https://github.com/HexaRolls/HexaDices/compare/v1.5.0...v1.6.0) (2021-07-01)
 
 
