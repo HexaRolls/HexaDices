@@ -53,7 +53,7 @@
               </n-button-group>
               <n-popover position="bottom" trigger="hover">
                 <template #trigger>
-                  <n-button ghost type="default">
+                  <n-button ghost type="default" @click="$refs.gameSettingsModal.toggle()">
                     <template #icon>
                       <feed/>
                     </template>
@@ -85,35 +85,7 @@
       </n-layout-header>
       <main-view :vue="tabView" :save="save" @navigation="handleNav" @finished-loading="handleNavFinish"/>
       <n-layout-footer bordered position="absolute" style="bottom: 0">
-        <n-space justify="end" style="padding: 4px 16px">
-          <n-badge show-zero :value="String(dices.d4)" :show="dices.d4 !== 0">
-            <n-button :disabled="rolling" size="small" :type="dices.d4 !== 0 ? 'primary': 'default'" ghost @click="dices.d4++" @contextmenu="dices.d4 -= 1">d4</n-button>
-          </n-badge>
-          <n-badge show-zero :value="String(dices.d6)" :show="dices.d6 !== 0">
-            <n-button :disabled="rolling" size="small" :type="dices.d6 !== 0 ? 'primary': 'default'" ghost @click="dices.d6++" @contextmenu="dices.d6 -= 1">d6</n-button>
-          </n-badge>
-          <n-badge show-zero :value="String(dices.d8)" :show="dices.d8 !== 0">
-            <n-button :disabled="rolling" size="small" :type="dices.d8 !== 0 ? 'primary': 'default'" ghost @click="dices.d8++" @contextmenu="dices.d8 -= 1">d8</n-button>
-          </n-badge>
-          <n-badge show-zero :value="String(dices.d12)" :show="dices.d12 !== 0">
-            <n-button :disabled="rolling" size="small" :type="dices.d12 !== 0 ? 'primary': 'default'" ghost @click="dices.d12++" @contextmenu="dices.d12-= 1">d12</n-button>
-          </n-badge>
-          <n-badge show-zero :value="String(dices.d20)" :show="dices.d20 !== 0">
-            <n-button :disabled="rolling" size="small" :type="dices.d20 !== 0 ? 'primary': 'default'" ghost @click="dices.d20++" @contextmenu="dices.d20 -= 1">d20</n-button>
-          </n-badge>
-          <n-badge show-zero :value="String(dices.d100)" :show="dices.d100 !== 0">
-            <n-button :disabled="rolling" size="small" :type="dices.d100 !== 0 ? 'primary': 'default'" ghost @click="dices.d100++" @contextmenu="dices.d100 -= 1">d100</n-button>
-          </n-badge>
-          <n-input-group>
-            <n-input-number :disabled="rolling" size="small" v-model:value="dices.add" placeholder="Bonus" style="width: 10em"/>
-            <n-button :disabled="rolling" :loading="rolling" round size="small" :type="rolled ? 'success' : 'primary'" ghost @click="roll">
-              <template v-if="rolled" #icon>
-                <check/>
-              </template>
-              Roll
-            </n-button>
-          </n-input-group>
-        </n-space>
+        <dice-roller />
       </n-layout-footer>
       <!-- <n-button :loading="loading" @click="reloadSave">
         <template #icon>
@@ -140,8 +112,8 @@
 import { defineComponent, h } from 'vue'
 import {
   NLayout, NLayoutSider, NMenu, NIcon, MenuProps, NButton, NTabs, NTabPane,
-  NLayoutHeader, NLayoutContent, NLayoutFooter, NSpace, NButtonGroup, NPopconfirm, NPopover,
-  NInputGroup, NInputNumber, NBadge, MenuOption
+  NLayoutHeader, NLayoutFooter, NSpace, NButtonGroup, NPopconfirm, NPopover,
+  MenuOption
 } from 'naive-ui'
 import userIcon from './utils/icons/user.vue'
 import userAddIcon from './utils/icons/userAdd.vue'
@@ -150,7 +122,6 @@ import statusIcon from './utils/icons/statusIcon.vue'
 import { useService, useIpc } from '../hooks'
 import { Game, SheetItem, SheetItemGroup, GameUser } from '/@shared/games'
 import Sync from './utils/icons/sync.vue'
-import Check from './utils/icons/check.vue'
 import MainView from './navigation/main-view.vue'
 import { WebviewTag } from 'electron'
 import ArrowLeft from './utils/icons/arrowLeft.vue'
@@ -158,6 +129,8 @@ import ArrowRight from './utils/icons/arrowRight.vue'
 import Feed from './utils/icons/feed.vue'
 import LogOut from './utils/icons/logOut.vue'
 import UserAddDrawer from './forms/userAddDrawer.vue'
+import gameSettingsModal from './forms/gameSettingsModal.vue'
+import DiceRoller from './utils/diceRoller.vue'
 const Store = useService('PersistentStore')
 
 function renderIcon(icon: any, color: string = '', data: any = null) {
@@ -325,18 +298,7 @@ export default defineComponent({
         back: false,
         loading: true,
         forward: false
-      },
-      dices: {
-        d4: 0,
-        d6: 0,
-        d8: 0,
-        d12: 0,
-        d20: 0,
-        d100: 0,
-        add: null as null|number
-      },
-      rolling: false,
-      rolled: false
+      }
     }
   },
   mounted() {
@@ -378,42 +340,6 @@ export default defineComponent({
     },
     handleNavFinish(NewVal: any) {
       this.navigation = NewVal
-    },
-    roll() {
-      this.rolling = true
-      const { add, ...numbers } = this.dices
-      const numArray = Object.entries(numbers)
-      const results: any = []
-      numArray.forEach(([dice, value]) => {
-        if (value === 0) return
-        const diceValue = Number(dice.split('d')[1])
-        const diceResults = []
-        if (value < 0) {
-          for (let i = 0; i < -(value); i++) {
-            diceResults.push(-(Math.floor(Math.random() * diceValue) + 1))
-          }
-        } else {
-          for (let i = 0; i < value; i++) {
-            diceResults.push(Math.floor(Math.random() * diceValue) + 1)
-          }
-        }
-        results.push({
-          dice,
-          values: diceResults
-        })
-      })
-      setTimeout(() => {
-        this.rolled = true
-        setTimeout(() => {
-          this.dices.d4 = this.dices.d6 = this.dices.d8 = this.dices.d12 = this.dices.d20 = this.dices.d100 = 0
-          this.dices.add = null
-          console.log(results, add)
-          this.rolling = false
-          setTimeout(() => {
-            this.rolled = false
-          }, 2000)
-        }, 150)
-      }, 1000)
     },
     callForServer() {
       useIpc().on('host:found', (e, service: any) => {
@@ -608,11 +534,9 @@ export default defineComponent({
     LogOut,
     NPopconfirm,
     NPopover,
-    NInputGroup,
-    NInputNumber,
-    NBadge,
-    Check,
-    UserAddDrawer
+    DiceRoller,
+    UserAddDrawer,
+    gameSettingsModal
   }
 })
 </script>
