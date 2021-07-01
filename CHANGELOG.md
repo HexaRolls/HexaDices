@@ -1,3 +1,16 @@
+## [1.5.0](https://github.com/HexaRolls/HexaDices/compare/v1.4.1...v1.5.0) (2021-06-29)
+
+
+### Features
+
+* **AutoUpdate:** Now send a notification to user ([d6cca71](https://github.com/HexaRolls/HexaDices/commit/d6cca71f2de070203018e7b029c7bc2840ed815f))
+
+
+### Bug Fixes
+
+* changes defaults visual for naive ui ([4cef4da](https://github.com/HexaRolls/HexaDices/commit/4cef4dabb661200e79fd7de00c9dcf1b692d5ec7))
+* removed unused import ([683fa8b](https://github.com/HexaRolls/HexaDices/commit/683fa8b0947d4a41d3ad57500fe6d414dda6daa8))
+
 ### [1.4.1](https://github.com/HexaRolls/HexaDices/compare/v1.4.0...v1.4.1) (2021-06-29)
 
 
