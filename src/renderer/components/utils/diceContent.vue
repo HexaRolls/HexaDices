@@ -20,7 +20,7 @@
                 </template>
                 <n-text :type="checkType(result.dice, value)">{{ value }}</n-text>
               </n-breadcrumb-item>
-              <n-breadcrumb-item>
+              <n-breadcrumb-item v-if="result.values.length > 1">
                 <n-text>{{ sum(result.values) }}</n-text>
               </n-breadcrumb-item>
             </n-breadcrumb>
