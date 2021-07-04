@@ -1,3 +1,18 @@
+## [1.7.0](https://github.com/HexaRolls/HexaDices/compare/v1.6.1...v1.7.0) (2021-07-04)
+
+
+### Features
+
+* **game:** New vue tab in game settings ([6c75657](https://github.com/HexaRolls/HexaDices/commit/6c7565748613d77a6eadd8c06a5cc0598eb3b2a4))
+
+
+### Bug Fixes
+
+* equal rendered when 1 result shown ([d8c1177](https://github.com/HexaRolls/HexaDices/commit/d8c117749590890058db515036bd806d00037b1b))
+* Error if no sheet attribued to user ([654c101](https://github.com/HexaRolls/HexaDices/commit/654c101045720d8c7829539d655f2f00f308be00))
+* package-lock version number ([2afb59a](https://github.com/HexaRolls/HexaDices/commit/2afb59a1ec9f531b7fdf6f8c2093f192768d5953))
+* Typedef in games changed ([111f06f](https://github.com/HexaRolls/HexaDices/commit/111f06f5d2d1d75c03ec739ce1210b39ad31af78))
+
 ### [1.6.1](https://github.com/HexaRolls/HexaDices/compare/v1.6.0...v1.6.1) (2021-07-01)
 
 
