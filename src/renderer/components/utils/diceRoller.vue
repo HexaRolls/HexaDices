@@ -115,7 +115,7 @@ export default defineComponent({
               rolled.value = false
             }, 2000)
           }, 150)
-        }, 1000)
+        }, 250)
       }
     }
   },
