@@ -9,7 +9,7 @@
         <template #header-extra>
           <n-tag type="default">Tour 1</n-tag>
         </template>
-        <template #description>
+        <template #description v-if="user.sheets.length">
           Joue {{ user.sheets[0].name }}
         </template>
 
