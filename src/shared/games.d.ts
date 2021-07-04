@@ -34,7 +34,6 @@ export interface GameUser {
 export interface GameView {
   id: number
   title: string
-  type: 'webview' | 'canvas'
 }
 
 export interface GameViewWeb extends GameView {
@@ -42,10 +41,13 @@ export interface GameViewWeb extends GameView {
   url: string
 }
 
-
 export interface GameViewCanvas extends GameView {
   type: 'canvas'
   content: any
+}
+
+export interface GameViewHeroic extends GameView {
+  type: 'heroic'
 }
 
 export interface Game {
@@ -53,7 +55,7 @@ export interface Game {
   name: string
   description: string
   users: GameUser[]
-  vues: (GameView|GameViewWeb|GameViewCanvas)[]
+  vues: (GameViewWeb|GameViewCanvas|GameViewHeroic)[]
 }
 
 export const Games: Game[]
