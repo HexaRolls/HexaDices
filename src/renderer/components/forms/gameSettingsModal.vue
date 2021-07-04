@@ -82,6 +82,73 @@
           </n-list-item>
         </n-list>
       </n-tab-pane>
+      <n-tab-pane display-directive="show" name="vues" tab="Vues">
+        <n-list>
+          <template #header>
+            <n-input-group>
+              <n-input v-model:value="query" type="input" round :placeholder="save.vues[0]?.title || ''">
+                <template #suffix>
+                  <search />
+                </template>
+              </n-input>
+              <n-popover trigger="hover" placement="bottom-end">
+                <template #trigger>
+                  <n-button round type="primary" ghost @click="handleVueAdd">
+                    <template #icon>
+                        <plus />
+                      </template>
+                  </n-button>
+                </template>
+                <span>Ajouter une vue</span>
+              </n-popover>
+            </n-input-group>
+          </template>
+
+          <n-list-item v-for="vue in filteredVues" :key="vue.id">
+            <n-thing>
+              <template #header>
+                {{ vue.title }}
+              </template>
+              <template #description>
+                {{ getType(vue) }}
+              </template>
+            </n-thing>
+            <template #suffix>
+              <n-space :wrap="false">
+                <n-popover trigger="hover" placement="left">
+                  <template #trigger>
+                    <n-button round>
+                      <template #icon>
+                        <pen />
+                      </template>
+                    </n-button>
+                  </template>
+                  <span>Modifier</span>
+                </n-popover>
+                <n-popconfirm placement="bottom-end">
+                  <template #activator>
+                    <n-button circle type="error" ghost>
+                      <template #icon>
+                        <trash />
+                      </template>
+                    </n-button>
+                  </template>
+                  <template #action>
+                    <n-button size="small" type="warning" ghost @click="handleVueDelete($event, vue)">Oui, supprimez !</n-button>
+                  </template>
+                  <template #default>
+                    <p style="text-align: left">
+                      Si vous supprimez cette vue,<br/>
+                      vous ne pourrez plus le récupérer par la suite,<br/>
+                      êtes-vous sûr ?
+                    </p>
+                  </template>
+                </n-popconfirm>
+              </n-space>
+            </template>
+          </n-list-item>
+        </n-list>
+      </n-tab-pane>
     </n-tabs>
 
     <!-- <template #footer>
@@ -117,20 +184,19 @@ export default defineComponent({
   },
   methods: {
     toggle() {
-      console.log('Toggle modal')
       this.show = !this.show
     },
     handleUserAdd() {
       this.$emit('userAdd')
     },
     handleVueAdd() {
-      this.$emit('vueAdd')
+      this.$emit('viewAdd')
     },
     handleUserDelete(event: any, user: GameUser) {
       this.$emit('userDelete', event, user)
     },
     handleVueDelete(event: any, vue: GameView) {
-      this.$emit('vueDelete', event, vue)
+      this.$emit('viewDelete', event, vue)
     },
     getStatus(user: GameUser) {
       let status = 'default'
@@ -150,6 +216,22 @@ export default defineComponent({
       }
 
       return status
+    },
+    getType(vue: Game['vues'][0]) {
+      let type = '¯\\_(ツ)_/¯'
+      switch (vue.type) {
+        case 'canvas':
+          type = 'Tableau'
+          break
+        case 'webview':
+          type = `Page web (${vue.url})`
+          break
+        case 'heroic':
+          type = 'Vue héroique'
+          break
+      }
+
+      return type
     }
   },
   computed: {
@@ -158,7 +240,7 @@ export default defineComponent({
         (user: GameUser) => (user?.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1)
       )
     },
-    filteredVues(): GameView[] {
+    filteredVues(): Game['vues'] {
       return this.save.vues.filter(
         (vue: GameView) => (vue?.title.toLowerCase().indexOf(this.query.toLowerCase()) !== -1)
       )

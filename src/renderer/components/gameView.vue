@@ -23,10 +23,6 @@
         <n-tabs
           v-model:value="tabValue"
           type="card"
-          :addable="tabAddable"
-          :closable="tabClosable"
-          @close="tabHandleClose"
-          @add="tabHandleAdd"
           tab-style="min-width: 80px;"
           >
           <n-tab-pane v-for="tabPanel in save?.vues" :name="tabPanel.title" :key="tabPanel.id">
@@ -103,8 +99,12 @@
         Stop server
       </n-button> -->
 
-      <game-settings-modal ref="gameSettingsModal" :save="save" @userAdd="$refs.addUserDrawer.toggle()" @userDelete="null" />
+      <game-settings-modal ref="gameSettingsModal" :save="save"
+        @userAdd="$refs.addUserDrawer.toggle()" @userDelete="handleUserDelete"
+        @viewAdd="$refs.viewAddDrawer.toggle()" @viewDelete="handleViewDelete"
+      />
       <user-add-drawer ref="addUserDrawer" :save="save" @adding="handleAddUser"/>
+      <view-add-drawer ref="viewAddDrawer" :save="save" @adding="handleAddView"/>
     </n-layout>
   </n-layout>
 </template>
@@ -121,7 +121,7 @@ import userAddIcon from './utils/icons/userAdd.vue'
 import icon from './utils/icon.vue'
 import statusIcon from './utils/icons/statusIcon.vue'
 import { useService, useIpc } from '../hooks'
-import { Game, SheetItem, SheetItemGroup, GameUser } from '/@shared/games'
+import { Game, SheetItem, SheetItemGroup, GameUser, GameView } from '/@shared/games'
 import Sync from './utils/icons/sync.vue'
 import MainView from './navigation/main-view.vue'
 import { WebviewTag } from 'electron'
@@ -130,6 +130,7 @@ import ArrowRight from './utils/icons/arrowRight.vue'
 import Feed from './utils/icons/feed.vue'
 import LogOut from './utils/icons/logOut.vue'
 import UserAddDrawer from './forms/userAddDrawer.vue'
+import ViewAddDrawer from './forms/viewAddDrawer.vue'
 import gameSettingsModal from './forms/gameSettingsModal.vue'
 import DiceRoller from './utils/diceRoller.vue'
 const Store = useService('PersistentStore')
@@ -293,7 +294,6 @@ export default defineComponent({
       menuOptions,
       loading: false,
       tabValue: 1,
-      tabPanels: [1, 2, 3, 4, 5],
       webview: null as null|WebviewTag,
       navigation: {
         back: false,
@@ -322,6 +322,14 @@ export default defineComponent({
     },
     handleUpdateValue(key, item) {
       if (key === 'addUser') this.$refs.addUserDrawer.toggle()
+    },
+    handleUserDelete(event: MouseEvent, user: GameUser) {
+      this.save?.users.splice(this.save.users.findIndex(e => e.id === user.id), 1)
+      this.updateSave()
+    },
+    handleViewDelete(event: MouseEvent, view: GameView) {
+      this.save?.vues.splice(this.save.vues.findIndex(e => e.id === view.id), 1)
+      this.updateSave()
     },
     navGoBack() {
       console.log('going back')
@@ -389,20 +397,6 @@ export default defineComponent({
         }
       })
     },
-    tabHandleAdd () {
-      const newValue = Math.max(...this.tabPanels) + 1
-      this.tabPanels.push(newValue)
-      this.tabValue = newValue
-    },
-    tabHandleClose (name: number) {
-      const panels = this.tabPanels
-      const nameIndex = panels.findIndex((panelName) => panelName === name)
-      if (!~nameIndex) return
-      panels.splice(nameIndex, 1)
-      if (name === this.tabValue) {
-        this.tabValue = panels[Math.min(nameIndex, panels.length - 1)]
-      }
-    },
     handleAddUser(data: GameUser) {
       this.save?.users.push({
         id: data.id,
@@ -410,6 +404,10 @@ export default defineComponent({
         status: data.status,
         sheets: []
       })
+      this.updateSave()
+    },
+    handleAddView(data: Game['vues'][0]) {
+      this.save?.vues.push(data)
       this.updateSave()
     }
   },
@@ -504,14 +502,6 @@ export default defineComponent({
       })
       return arr
     },
-    tabAddable() {
-      return {
-        disabled: this.tabPanels.length >= 10
-      }
-    },
-    tabClosable() {
-      return this.tabPanels.length > 1
-    },
     tabView() {
       return this.save?.vues?.find(vue => vue.title === this.tabValue) || {}
     }
@@ -537,6 +527,7 @@ export default defineComponent({
     NPopover,
     DiceRoller,
     UserAddDrawer,
+    ViewAddDrawer,
     gameSettingsModal
   }
 })
