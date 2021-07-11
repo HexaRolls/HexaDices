@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "lib": ["ESNext"],
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "strict": true,
