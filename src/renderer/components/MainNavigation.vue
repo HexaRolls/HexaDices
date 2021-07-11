@@ -1,7 +1,7 @@
 <template>
   <main id="main-content" ref="main-content" style="position:relative;overflow-x:hidden">
     <!-- <navigator /> -->
-    <div class="box">
+    <div class="container">
       <router-view v-slot="{ Component }">
         <page-transition>
           <component :is="Component" :key="$route.path"/>
