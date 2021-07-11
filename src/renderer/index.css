@@ -53,9 +53,10 @@ main {
 
 .container {
   display: flex;
-  padding: 10px;
-  flex-wrap: wrap;
-  width: 100vw;
+  width: calc(100vw - 2px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: calc(100vh - 34px);
 }
 
 .flex {
