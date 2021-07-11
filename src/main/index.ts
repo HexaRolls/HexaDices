@@ -22,6 +22,8 @@ import HostStop from './IPC/host/stop'
 import UpdateCheck from './IPC/update/check'
 import UpdateReload from './IPC/update/reload'
 import FeedbackSendReport from './IPC/feedback/sendReport'
+import TransferExport from './IPC/transfer/export'
+import TransferImport from './IPC/transfer/import'
 
 // Preload
 import indexPreload from '/@preload/index'
@@ -194,5 +196,7 @@ export class Main {
   new HostStop(),
   new UpdateCheck(),
   new UpdateReload(),
-  new FeedbackSendReport()
+  new FeedbackSendReport(),
+  new TransferExport(),
+  new TransferImport()
 ])
