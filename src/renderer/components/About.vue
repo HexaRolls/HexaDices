@@ -1,5 +1,6 @@
 <template>
-  <div style="height: 70%;display: grid;align-content: center">
+  <div style="height: 70%;display: grid;align-content: center;justify-items: center">
+    <img :src="imgRef" alt="App image">
     <div>App Version: {{ version }} </div>
     <div>Appdata Path: {{ path }} </div>
     <div>Running Platform: {{ platform }} </div>
@@ -9,6 +10,8 @@
 <script lang=ts>
 import { defineComponent, reactive, toRefs } from 'vue'
 import { useService } from '../hooks'
+
+import imgRef from '../assets/logo.png'
 
 export default defineComponent({
   setup() {
@@ -24,7 +27,8 @@ export default defineComponent({
       data.platform = platform
     })
     return {
-      ...toRefs(data)
+      ...toRefs(data),
+      imgRef
     }
   }
 })
