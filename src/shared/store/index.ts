@@ -3,12 +3,14 @@ import { StoreOptions } from 'vuex'
 import { BaseGetters, BaseMutations, BaseState, RootState } from './definition'
 import bar, { BarModule } from './modules/bar'
 import foo, { FooModule } from './modules/foo'
+import globalConfig, { GlobalConfigModule } from './modules/globalConfig'
 
 declare module './definition' {
 
   interface ModuleMap {
     foo: FooModule
     bar: BarModule
+    globalConfig: GlobalConfigModule
   }
 
   interface BaseState {
@@ -30,7 +32,8 @@ const store = {
   plugin: [],
   modules: {
     foo,
-    bar
+    bar,
+    globalConfig
   }
 }
 
