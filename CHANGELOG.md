@@ -1,3 +1,17 @@
+## [1.8.0](https://github.com/HexaRolls/HexaDices/compare/v1.7.0...v1.8.0) (2021-07-11)
+
+
+### Features
+
+* **App:** InApp import / export feature ([005800b](https://github.com/HexaRolls/HexaDices/commit/005800b11fc2e642dd3a35639b2647d5abc6f33c))
+* **Settings:** Adding in-app looking options ([e8fafa1](https://github.com/HexaRolls/HexaDices/commit/e8fafa1cdb43fcd4663b36b28f5b77f52ecbe8a0))
+
+
+### Bug Fixes
+
+* container Css values ([dd5270e](https://github.com/HexaRolls/HexaDices/commit/dd5270ec289c17e5c7074e8787b5c6f0e593cdd3))
+* extension loading in dev mode ([d856451](https://github.com/HexaRolls/HexaDices/commit/d856451de02ae488f915a764f0479c38293b3350))
+
 ## [1.7.0](https://github.com/HexaRolls/HexaDices/compare/v1.6.1...v1.7.0) (2021-07-04)
 
 
