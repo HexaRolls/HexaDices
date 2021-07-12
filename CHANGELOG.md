@@ -1,3 +1,15 @@
+## [1.9.0](https://github.com/HexaRolls/HexaDices/compare/v1.8.1...v1.9.0) (2021-07-12)
+
+
+### Features
+
+* **Game:** New secure webview injection prevent ([405b26f](https://github.com/HexaRolls/HexaDices/commit/405b26f5e64adc86a7a8e61ea162f0895f3ce671))
+
+
+### Bug Fixes
+
+* MacOs activated window ([3d6d18f](https://github.com/HexaRolls/HexaDices/commit/3d6d18f8f2d49937a421f3fbec7025fd10b1b551))
+
 ### [1.8.1](https://github.com/HexaRolls/HexaDices/compare/v1.8.0...v1.8.1) (2021-07-12)
 
 
