@@ -150,13 +150,13 @@ export class Main {
   }
 
   onActivate() {
-    if (!this.mainWindow) {
+    if (typeof this.mainWindow === 'undefined' || !this.mainWindow) {
       this.createWindow()
     }
   }
 
   createWindow() {
-    const mainWindow = new BrowserWindow({
+    this.mainWindow = new BrowserWindow({
       x: this.windowState.x,
       y: this.windowState.y,
 
@@ -177,9 +177,9 @@ export class Main {
     })
 
     nativeTheme.themeSource = 'dark'
-    mainWindow.loadURL(indexHtmlUrl)
+    this.mainWindow.loadURL(indexHtmlUrl)
 
-    return mainWindow
+    return this.mainWindow
   }
 
   private registerIpcChannels(ipcChannels: IpcChannelInterface[]) {
