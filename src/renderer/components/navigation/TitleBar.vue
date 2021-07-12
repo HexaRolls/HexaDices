@@ -1,6 +1,6 @@
 <template>
   <header id="window-bar" :class="{ 'maximized': isMaximized }">
-    <div id="drag-region">
+    <div id="drag-region" :class="{ 'isMac': platform === 'darwin' }">
       <div id="window-title">
         <span class="appTitle">HexaDices {{ $route.name ? `- ${String($route.name)}` : null }}</span>
         <div id="window-buttons">
@@ -32,7 +32,6 @@
         </div>
       </div>
 
-
       <div id="window-controls">
 
         <div class="button" id="min-button" @click="minimize">
@@ -57,16 +56,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useService, useIpc } from '../../hooks'
-import { NPopover } from 'naive-ui'
+import { NPopover, NTabs, NTabPane } from 'naive-ui'
 import UpdateButton from '../utils/updateButton.vue'
+
+import Check from '../utils/icons/check.vue'
+import Feed from '../utils/icons/feed.vue'
+
 const win = useService('WindowsControl')
 
 export default defineComponent({
-  data() {
+  setup() {
+    const { getBasicInformation } = useService('BaseService')
+    const isMaximized = ref(false)
+    const osPlatform = ref(null as null|NodeJS.Platform)
+    getBasicInformation().then(({ platform }) => {
+      osPlatform.value = platform
+    })
+
     return {
-      isMaximized: false
+      platform: osPlatform,
+      isMaximized
     }
   },
   mounted() {
@@ -96,7 +107,11 @@ export default defineComponent({
   },
   components: {
     NPopover,
-    UpdateButton
+    UpdateButton,
+    NTabs,
+    NTabPane,
+    Check,
+    Feed
   }
 })
 </script>
@@ -118,6 +133,22 @@ export default defineComponent({
     display: grid
     grid-template-columns: auto 138px
     -webkit-app-region: drag
+
+    &.isMac
+      grid-template-columns: 138px auto
+
+      #window-title
+        grid-column: 2
+        justify-content: center
+
+        .appTitle
+          flex: unset
+
+      #window-buttons
+        width: auto
+
+      #window-controls
+          display: none
 
     #window-controls
       -webkit-app-region: no-drag

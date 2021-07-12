@@ -172,6 +172,7 @@ export class Main {
 
       icon: logoUrl,
       frame: false,
+      titleBarStyle: 'hiddenInset',
       backgroundColor: '#232430'
     })
 
