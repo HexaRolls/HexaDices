@@ -1,5 +1,7 @@
 // Libs
-import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, WebContents, shell } from 'electron'
+import { Event } from 'electron/main'
+
 import { initRenderer } from 'electron-store'
 import { autoUpdater } from 'electron-updater'
 import { debounce } from 'lodash'
@@ -70,6 +72,7 @@ export class Main {
     app.on('ready', this.onReady.bind(this))
     app.on('window-all-closed', this.onWindowAllClosed.bind(this))
     app.on('activate', this.onActivate.bind(this))
+    app.on('web-contents-created', this.webContentsCreated.bind(this))
 
     this.registerIpcChannels(ipcChannels)
     this.client.login({ clientId: this.clientID }).catch(err => this.logger.error(err))
@@ -153,6 +156,35 @@ export class Main {
     if (typeof this.mainWindow === 'undefined' || !this.mainWindow) {
       this.createWindow()
     }
+  }
+
+  webContentsCreated(event: Event, contents: WebContents) {
+    contents.on('will-attach-webview', (event, webPreferences, params) => {
+      delete webPreferences.preload
+
+      webPreferences.contextIsolation = true
+      webPreferences.nodeIntegration = false
+
+      if (!params.src.startsWith('https://')) {
+        event.preventDefault()
+      }
+    })
+
+    contents.on('will-navigate', (event, navigationUrl) => {
+      if (!navigationUrl.startsWith('https://')) {
+        event.preventDefault()
+      }
+    })
+
+    contents.setWindowOpenHandler(({ url }) => {
+      if (url.startsWith('https://')) {
+        setImmediate(() => {
+          shell.openExternal(url)
+        })
+      }
+
+      return { action: 'deny' }
+    })
   }
 
   createWindow() {
