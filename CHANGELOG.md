@@ -1,3 +1,10 @@
+### [1.8.1](https://github.com/HexaRolls/HexaDices/compare/v1.8.0...v1.8.1) (2021-07-12)
+
+
+### Bug Fixes
+
+* Wrong buttons on mac ([57cbee6](https://github.com/HexaRolls/HexaDices/commit/57cbee66ab2f0e842cb6f87f65a637d95bd9c17e))
+
 ## [1.8.0](https://github.com/HexaRolls/HexaDices/compare/v1.7.0...v1.8.0) (2021-07-11)
 
 
