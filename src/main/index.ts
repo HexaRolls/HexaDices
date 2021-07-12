@@ -81,16 +81,6 @@ export class Main {
   onReady() {
     this.mainWindow = this.createWindow()
 
-    // Auto-Update
-    if (process.env.NODE_ENV === 'production') {
-      try {
-        this.logger.log('Checking for update...')
-        autoUpdater.checkForUpdates()
-      } catch (error) {
-        this.logger.error(error)
-      }
-    }
-
     this.mainWindow.on('resize', debounce(this.windowState.saveState, 500))
     this.mainWindow.on('move', debounce(this.windowState.saveState, 500))
 
