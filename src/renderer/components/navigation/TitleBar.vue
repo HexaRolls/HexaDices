@@ -56,40 +56,46 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, reactive } from 'vue'
 import { useService, useIpc } from '../../hooks'
-import { NPopover, NTabs, NTabPane } from 'naive-ui'
+import { NPopover } from 'naive-ui'
 import UpdateButton from '../utils/updateButton.vue'
-
-import Check from '../utils/icons/check.vue'
-import Feed from '../utils/icons/feed.vue'
 
 const win = useService('WindowsControl')
 
 export default defineComponent({
   setup() {
     const { getBasicInformation } = useService('BaseService')
+    const ipc = useIpc()
     const isMaximized = ref(false)
     const osPlatform = ref(null as null|NodeJS.Platform)
     getBasicInformation().then(({ platform }) => {
       osPlatform.value = platform
     })
 
+    const maximize = reactive({
+      on: () => {
+        isMaximized.value = true
+      },
+      off: () => {
+        isMaximized.value = false
+      }
+    })
+
+    ipc.on('maximize', maximize.on)
+    ipc.on('minimize', maximize.off)
+
     return {
       platform: osPlatform,
-      isMaximized
+      isMaximized,
+      maximize
     }
   },
-  mounted() {
-    useIpc().on('maximize', () => {
-      this.isMaximized = true
-    })
-    useIpc().on('minimize', () => {
-      this.isMaximized = false
-    })
-    useIpc().on('update:checked', (e, data) => {
-      console.log(data)
-    })
+  beforeUnmount() {
+    const ipc = useIpc()
+
+    ipc.off('maximize', this.maximize.on)
+    ipc.off('minimize', this.maximize.off)
   },
   methods: {
     minimize() {
@@ -107,11 +113,7 @@ export default defineComponent({
   },
   components: {
     NPopover,
-    UpdateButton,
-    NTabs,
-    NTabPane,
-    Check,
-    Feed
+    UpdateButton
   }
 })
 </script>

@@ -57,67 +57,19 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref } from 'vue'
-import { NCard, NForm, NFormItem, NInput, NResult, NButton, NSpace, NCheckbox, NCheckboxGroup } from 'naive-ui'
+import { NCard, NForm, NFormItem, NInput, NResult, NButton, NSpace, NCheckbox, NCheckboxGroup, FormInst } from 'naive-ui'
 import { useIpc, useService } from '../hooks'
 
 export default defineComponent({
   setup() {
-    const formRef = ref(null)
+    const ipc = useIpc()
+    const formRef = ref(null as null|FormInst)
     const { getBasicInformation } = useService('BaseService')
     const data = reactive({
       version: '',
       platform: '',
       electronVersion: '',
-      chromeVersion: ''
-    })
-    getBasicInformation().then(({ version, platform, electronVersion, chromeVersion, root }) => {
-      data.version = version
-      data.platform = platform
-      data.electronVersion = electronVersion
-      data.chromeVersion = chromeVersion
-    })
-    return {
-      formRef,
-      ...toRefs(data),
-      handleValidateButtonClick(e) {
-        e.preventDefault()
-        formRef.value.validate((errors) => {
-          if (!errors) {
-            const IPC = useIpc()
-            this.loading = true
-
-            IPC.on('feedback:sendedReport', (e, [data, error]) => {
-              if (error) {
-                this.error = true
-                console.error(error)
-              } else if (data > 299) {
-                this.error = true
-                console.error(data)
-              } else {
-                this.success = true
-                console.log(data)
-              }
-            })
-
-            const data = JSON.parse(JSON.stringify({
-              title: this.model.title,
-              description: this.model.description,
-              auths: this.model.authCheckbox
-            }))
-
-            IPC.send('feedback:sendReport', data)
-          } else {
-            console.log(errors)
-          }
-        })
-      }
-    }
-  },
-  mounted() {
-    this.loading = this.success = this.error = false
-  },
-  data() {
-    return {
+      chromeVersion: '',
       loading: false,
       success: false,
       error: false,
@@ -141,7 +93,52 @@ export default defineComponent({
           required: false
         }
       }
+    })
+    getBasicInformation().then(({ version, platform, electronVersion, chromeVersion, root }) => {
+      data.version = version
+      data.platform = platform
+      data.electronVersion = electronVersion
+      data.chromeVersion = chromeVersion
+    })
+    return {
+      formRef,
+      ...toRefs(data),
+      handleValidateButtonClick(e: MouseEvent) {
+        e.preventDefault()
+
+        formRef.value?.validate((errors) => {
+          if (!errors) {
+            data.loading = true
+
+            ipc.once('feedback:sendedReport', (e, [reportData, error]) => {
+              if (error) {
+                data.error = true
+                console.error(error)
+              } else if (reportData > 299) {
+                data.error = true
+                console.error(reportData)
+              } else {
+                data.success = true
+                console.log(reportData)
+              }
+            })
+
+            const sendingData = JSON.parse(JSON.stringify({
+              title: data.model.title,
+              description: data.model.description,
+              auths: data.model.authCheckbox
+            }))
+
+            ipc.send('feedback:sendReport', sendingData)
+          } else {
+            console.log(errors)
+          }
+        })
+      }
     }
+  },
+  mounted() {
+    this.loading = this.success = this.error = false
   },
   components: {
     NResult,
