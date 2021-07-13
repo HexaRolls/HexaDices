@@ -18,10 +18,12 @@ export default defineComponent({
   props: {
     vue: {
       type: Object as PropType<Game['vues'][0]>,
+      default: null,
       required: false
     },
     save: {
-      type: Array as PropType<Game[]>,
+      type: Object as PropType<Game>,
+      default: null,
       required: false
     }
   },
