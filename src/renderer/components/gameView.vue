@@ -25,12 +25,14 @@
           type="card"
           tab-style="min-width: 80px;"
           >
-          <n-tab-pane v-for="tabPanel in save?.vues" :name="tabPanel.title" :key="tabPanel.id">
-            <span></span>
-          </n-tab-pane>
+          <template #default v-if="save?.vues.length">
+            <n-tab-pane v-for="gameVue in save.vues" :name="gameVue.title" :key="gameVue.id">
+              <span></span>
+            </n-tab-pane>
+          </template>
           <template #suffix>
             <n-space justify="end">
-              <n-button-group v-if="tabView?.type === 'webview'">
+              <n-button-group v-if="tabView && tabView?.type === 'webview'">
                 <n-button type="primary" round :disabled="!navigation.back" @click="navGoBack">
                   <template #icon>
                     <arrow-left/>
@@ -49,7 +51,7 @@
               </n-button-group>
               <n-popover position="bottom" trigger="hover">
                 <template #trigger>
-                  <n-button ghost type="default" @click="$refs.gameSettingsModal.toggle()">
+                  <n-button ghost type="default" @click="gameSettingsModalRef?.toggle()">
                     <template #icon>
                       <feed/>
                     </template>
@@ -83,251 +85,139 @@
       <n-layout-footer bordered position="absolute" style="bottom: 0">
         <dice-roller />
       </n-layout-footer>
-      <!-- <n-button :loading="loading" @click="reloadSave">
-        <template #icon>
-          <sync />
-        </template>
-        Reload Save
-      </n-button>
-      <n-button @click="callForServer">
-        Look for webserver
-      </n-button>
-      <n-button @click="startServer">
-        Start server
-      </n-button>
-      <n-button @click="stopServer">
-        Stop server
-      </n-button> -->
 
-      <game-settings-modal ref="gameSettingsModal" :save="save"
-        @userAdd="$refs.addUserDrawer.toggle()" @userDelete="handleUserDelete"
-        @viewAdd="$refs.viewAddDrawer.toggle()" @viewDelete="handleViewDelete"
+      <game-settings-modal ref="gameSettingsModalRef" :save="save"
+        @userAdd="userAddDrawerRef?.toggle()" @userDelete="handleUserDelete"
+        @viewAdd="viewAddDrawerRef?.toggle()" @viewDelete="handleViewDelete"
       />
-      <user-add-drawer ref="addUserDrawer" :save="save" @adding="handleAddUser"/>
-      <view-add-drawer ref="viewAddDrawer" :save="save" @adding="handleAddView"/>
+      <user-add-drawer ref="userAddDrawerRef" :save="save" @adding="handleAddUser"/>
+      <view-add-drawer ref="viewAddDrawerRef" :save="save" @adding="handleAddView"/>
     </n-layout>
   </n-layout>
 </template>
 
 <script lang="ts">
-import { defineComponent, h } from 'vue'
-import {
-  NLayout, NLayoutSider, NMenu, NIcon, MenuProps, NButton, NTabs, NTabPane,
-  NLayoutHeader, NLayoutFooter, NSpace, NButtonGroup, NPopconfirm, NPopover,
-  MenuOption
-} from 'naive-ui'
-import userIcon from './utils/icons/user.vue'
-import userAddIcon from './utils/icons/userAdd.vue'
-import icon from './utils/icon.vue'
-import statusIcon from './utils/icons/statusIcon.vue'
-import { useService, useIpc } from '../hooks'
-import { Game, SheetItem, SheetItemGroup, GameUser, GameView } from '/@shared/games'
-import Sync from './utils/icons/sync.vue'
-import MainView from './navigation/main-view.vue'
+import { defineComponent, h, reactive, ref, toRefs, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { WebviewTag } from 'electron'
-import ArrowLeft from './utils/icons/arrowLeft.vue'
-import ArrowRight from './utils/icons/arrowRight.vue'
-import Feed from './utils/icons/feed.vue'
-import LogOut from './utils/icons/logOut.vue'
+import { useService } from '../hooks'
+import { Game, SheetItem, SheetItemGroup, GameUser, GameView } from '/@shared/games'
+
+import {
+  MenuOption,
+  MenuProps,
+
+  NLayout,
+  NLayoutSider,
+  NMenu,
+  NIcon,
+  NButton,
+  NButtonGroup,
+  NTabs,
+  NTabPane,
+  NLayoutHeader,
+  NLayoutFooter,
+  NSpace,
+  NPopconfirm,
+  NPopover
+} from 'naive-ui'
+
+import MainView from './navigation/main-view.vue'
+import DiceRoller from './utils/diceRoller.vue'
+
 import UserAddDrawer from './forms/userAddDrawer.vue'
 import ViewAddDrawer from './forms/viewAddDrawer.vue'
-import gameSettingsModal from './forms/gameSettingsModal.vue'
-import DiceRoller from './utils/diceRoller.vue'
+import GameSettingsModal from './forms/gameSettingsModal.vue'
+
+import Icon from './utils/icon.vue'
+import StatusIcon from './utils/icons/statusIcon.vue'
+
+import Feed from './utils/icons/feed.vue'
+import Sync from './utils/icons/sync.vue'
+import LogOut from './utils/icons/logOut.vue'
+import UserAddIcon from './utils/icons/userAdd.vue'
+import ArrowLeft from './utils/icons/arrowLeft.vue'
+import ArrowRight from './utils/icons/arrowRight.vue'
+
 const Store = useService('PersistentStore')
 
-function renderIcon(icon: any, color: string = '', data: any = null) {
+const renderIcon = (icon: any, color: string = '', data: any = null) => {
   return () => h(NIcon, { color: color }, { default: () => h(icon, data) })
 }
 
-function render(element: any, data: any = null) {
+const render = (element: any, data: any = null) => {
   return () => h(NIcon, null, { default: () => h(element, data) })
 }
 
-const menuOptions: MenuProps['options'] = [
-  {
-    label: 'Astroalex',
-    key: 'id:1',
-    icon: render(icon),
-    children: [
-      {
-        type: 'group',
-        label: 'Altaïr Orélion',
-        key: 'id:1-sheet:1',
-        children: [
-          {
-            label: 'Stats',
-            key: 'id:1-sheet:1-stats'
-          },
-          {
-            label: 'Inventaire',
-            key: 'id:1-sheet:1-inventory',
-            children: [
-              {
-                label: 'Argent',
-                extra: '12g',
-                key: 'id:1-sheet:1-money'
-              }
-            ]
-          },
-          {
-            label: 'Options',
-            key: 'id:1-sheet:1-settings',
-            children: [
-              {
-                label: 'Modifier',
-                key: 'id:1-sheet:1-modify'
-              },
-              {
-                label: 'Sauvegarder',
-                key: 'id:1-sheet:1-save'
-              },
-              {
-                label: 'Supprimer',
-                key: 'id:1-sheet:1-delete'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        type: 'group',
-        label: 'PNJ n°3',
-        key: 'id:1-sheet:2',
-        children: [
-          {
-            label: 'Stats',
-            key: 'id:1-sheet:2-stats'
-          },
-          {
-            label: 'Inventaire',
-            key: 'id:1-sheet:2-inventory',
-            children: [
-              {
-                label: 'Argent',
-                extra: '12g',
-                key: 'id:1-sheet:2-money'
-              }
-            ]
-          },
-          {
-            label: 'Options',
-            key: 'id:1-sheet:2-settings',
-            children: [
-              {
-                label: 'Modifier',
-                key: 'id:1-sheet:2-modify'
-              },
-              {
-                label: 'Sauvegarder',
-                key: 'id:1-sheet:2-save'
-              },
-              {
-                label: 'Supprimer',
-                key: 'id:1-sheet:2-delete'
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Azura',
-    key: 'id:2',
-    icon: renderIcon(userIcon),
-    children: [
-      {
-        type: 'group',
-        label: 'Azura Orélion',
-        key: 'id:2-sheet:1',
-        children: [
-          {
-            label: 'Stats',
-            key: 'id:2-sheet:1-stats'
-          },
-          {
-            label: 'Inventaire',
-            key: 'id:2-sheet:1-inventory',
-            children: [
-              {
-                label: 'Argent',
-                extra: '150g',
-                key: 'id:2-sheet:1-money'
-              }
-            ]
-          },
-          {
-            label: 'Options',
-            key: 'id:2-sheet:1-settings',
-            children: [
-              {
-                label: 'Modifier',
-                key: 'id:2-sheet:1-modify'
-              },
-              {
-                label: 'Sauvegarder',
-                key: 'id:2-sheet:1-save'
-              },
-              {
-                label: 'Supprimer',
-                key: 'id:2-sheet:1-delete'
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Ajouter un utilisateur',
-    key: 'addUser',
-    icon: renderIcon(userAddIcon)
-  }
-]
-
 export default defineComponent({
-  data() {
-    return {
+  setup() {
+    const route = useRoute()
+
+    const save = ref(null as null|Game)
+    const webview = ref(null as null|WebviewTag)
+    const navigation = reactive({
+      back: false,
+      loading: true,
+      forward: false
+    })
+    const data = reactive({
       activeKey: null,
       collapsed: true,
-      save: null as null|Game,
-      menuOptions,
       loading: false,
-      tabValue: 1,
-      webview: null as null|WebviewTag,
-      navigation: {
-        back: false,
-        loading: true,
-        forward: false
-      }
+      tabValue: '1'
+    })
+
+    const gameSettingsModalRef = ref(null as null | typeof GameSettingsModal)
+    const userAddDrawerRef = ref(null as null | typeof UserAddDrawer)
+    const viewAddDrawerRef = ref(null as null | typeof ViewAddDrawer)
+
+    const tabView = computed((): (Game['vues'][0] | null) => save.value?.vues?.find(vue => vue.title === data.tabValue) || null)
+
+    const reloadSave = () => {
+      data.loading = true
+      Store.getStoreValue('saved', 'games', null).then((games: null | Game[]) => {
+        console.log('retrived result of', games, '\nWith params', route.params)
+
+        if (games) save.value = games.find(game => game.id === Number(route.params.id)) || null
+        data.loading = false
+      })
+    }
+
+    const updateSave = () => {
+      Store.getStoreValue('saved', 'games', null).then((games: null | Game[]) => {
+        const toReturn = games ? [...games] : null
+
+        if (toReturn && save.value) {
+          toReturn[toReturn.findIndex(game => game.id === Number(route.params.id))] = JSON.parse(JSON.stringify(save.value))
+          Store.setStoreValue('saved', 'games', toReturn)
+        }
+      })
+    }
+
+    reloadSave()
+
+    return {
+      ...toRefs(data),
+      gameSettingsModalRef,
+      userAddDrawerRef,
+      viewAddDrawerRef,
+      save,
+      webview,
+      navigation,
+      reloadSave,
+      updateSave,
+      tabView
     }
   },
-  mounted() {
-    this.reloadSave()
-  },
   methods: {
-    async reloadSave() {
-      this.loading = true
-      const data: Game[] = await Store.getStoreValue('saved', 'games', null)
-      console.log('retrived result of', data, '\nWith params', this.$route.params)
-      if (data) this.save = data.find(game => game.id === Number(this.$route.params?.id)) || null
-      this.loading = false
+    handleUpdateValue(key: string, item: any) {
+      if (key === 'addUser') this.userAddDrawerRef?.toggle()
     },
-    async updateSave() {
-      const data: Game[] = await Store.getStoreValue('saved', 'games', null)
-      if (data && this.save) {
-        data[data.findIndex(game => game.id === Number(this.$route.params?.id))] = JSON.parse(JSON.stringify(this.save))
-        Store.setStoreValue('saved', 'games', data)
-      }
-    },
-    handleUpdateValue(key, item) {
-      if (key === 'addUser') this.$refs.addUserDrawer.toggle()
-    },
-    handleUserDelete(event: MouseEvent, user: GameUser) {
+    handleUserDelete(e: MouseEvent, user: GameUser) {
       this.save?.users.splice(this.save.users.findIndex(e => e.id === user.id), 1)
       this.updateSave()
     },
-    handleViewDelete(event: MouseEvent, view: GameView) {
+    handleViewDelete(e: MouseEvent, view: GameView) {
       this.save?.vues.splice(this.save.vues.findIndex(e => e.id === view.id), 1)
       this.updateSave()
     },
@@ -350,33 +240,12 @@ export default defineComponent({
     handleNavFinish(NewVal: any) {
       this.navigation = NewVal
     },
-    callForServer() {
-      useIpc().on('host:found', (e, service: any) => {
-        console.log('service found:', service)
-      })
-
-      useIpc().send('host:search')
-    },
-    startServer() {
-      useIpc().on('host:started', (e, service: any) => {
-        console.log('service started:', service)
-      })
-
-      useIpc().send('host:start')
-    },
-    stopServer() {
-      useIpc().on('host:stopped', () => {
-        console.log('service stopped')
-      })
-
-      useIpc().send('host:stop')
-    },
     loadInventory(inv: (SheetItem | SheetItemGroup)[] = [], userID: number, sheetID: number): MenuProps['options'] {
       return inv.map(item => {
         const itemData = {
           label: item.name,
           key: `id:${userID}-sheet:${sheetID}-item:${item.id}`,
-          icon: renderIcon(statusIcon, '', {
+          icon: renderIcon(StatusIcon, '', {
             icon: item.icon
           })
         }
@@ -385,7 +254,7 @@ export default defineComponent({
           case 'group':
             return {
               ...itemData,
-              children: this.loadInventory(item.items, userID, sheetID)
+              children: this.loadInventory((item as SheetItemGroup).items, userID, sheetID)
             }
           case 'currency':
             return {
@@ -437,7 +306,7 @@ export default defineComponent({
             const userData: MenuOption = {
               label: user.name,
               key: `id:${user.id}`,
-              icon: render(icon, {
+              icon: render(Icon, {
                 status: status
               })
             }
@@ -498,12 +367,9 @@ export default defineComponent({
       arr.push({
         label: 'Ajouter un utilisateur',
         key: 'addUser',
-        icon: renderIcon(userAddIcon)
+        icon: renderIcon(UserAddIcon)
       })
       return arr
-    },
-    tabView() {
-      return this.save?.vues?.find(vue => vue.title === this.tabValue) || {}
     }
   },
   components: {
@@ -511,24 +377,27 @@ export default defineComponent({
     NLayoutSider,
     NMenu,
     NButton,
-    Sync,
-    MainView,
+    NButtonGroup,
     NTabs,
     NTabPane,
     NLayoutHeader,
     NLayoutFooter,
     NSpace,
-    NButtonGroup,
+    NPopconfirm,
+    NPopover,
+
+    MainView,
+    DiceRoller,
+
+    UserAddDrawer,
+    ViewAddDrawer,
+    GameSettingsModal,
+
+    Sync,
     ArrowLeft,
     ArrowRight,
     Feed,
-    LogOut,
-    NPopconfirm,
-    NPopover,
-    DiceRoller,
-    UserAddDrawer,
-    ViewAddDrawer,
-    gameSettingsModal
+    LogOut
   }
 })
 </script>
