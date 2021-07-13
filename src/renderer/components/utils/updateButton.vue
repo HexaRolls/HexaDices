@@ -33,21 +33,26 @@
 </template>
 
 <script>
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, reactive, toRefs } from 'vue'
 import { useIpc } from '../../hooks'
 import { NPopover, NProgress, NText, useNotification, NIcon, NButton } from 'naive-ui'
 import SoftwareDownload from '../utils/icons/softwareDownload.vue'
 
 export default defineComponent({
   setup() {
+    const ipc = useIpc()
     const notification = useNotification()
 
-    return {
-      sendUpdateNotification(version) {
+    const data = reactive({
+      checking: false,
+      updating: false,
+      updated: false,
+      failed: false,
+      canReload: false,
+      percentage: 0,
+      sendUpdateNotification: (version) => {
         const date = new Date()
-        function checkTime(i) {
-          return (i < 10) ? '0' + i : i
-        }
+        const checkTime = (i) => (i < 10) ? '0' + i : i
 
         const n = notification.create({
           title: 'Une mise à jour est disponible',
@@ -74,61 +79,56 @@ export default defineComponent({
               }
             )
         })
+      },
+      updateDownloaded: (e, obj) => {
+        console.log(obj)
+        data.updating = true
+        data.percentage = 100
+        data.sendUpdateNotification(obj.version)
+
+        setTimeout(() => {
+          data.updating = false
+          data.canReload = true
+        }, 750)
+      },
+      updateProgress: (e, obj) => {
+        console.log(obj)
+        data.updating = true
+        data.percentage = Math.ceil(obj.percent)
+      },
+      updateError: (e, obj) => {
+        console.error(obj)
+        data.failed = true
+      }
+    })
+
+    ipc.on('update:downloaded', data.updateDownloaded)
+    ipc.on('update:progress', data.updateProgress)
+    ipc.on('update:error', data.updateError)
+
+    return {
+      ...toRefs(data),
+      checkForUpdate: () => {
+        data.checking = true
+
+        ipc.once('update:checked', (e, obj) => {
+          console.log(obj)
+          data.checking = false
+        })
+
+        ipc.send('update:check')
+      },
+      reloadApp: () => {
+        ipc.send('update:reload')
       }
     }
   },
-  data() {
-    return {
-      checking: false,
+  beforeUnmount() {
+    const ipc = useIpc()
 
-      updating: false,
-
-      updated: false,
-
-      failed: false,
-
-      canReload: false,
-
-      percentage: 0
-    }
-  },
-  mounted() {
-    useIpc().on('update:checked', (e, data) => {
-      console.log(data)
-      this.checking = false
-    })
-
-    useIpc().on('update:downloaded', (e, data) => {
-      console.log(data)
-      this.updating = true
-      this.percentage = 100
-      this.sendUpdateNotification(data.version)
-
-      setTimeout(() => {
-        this.updating = false
-        this.canReload = true
-      }, 750)
-    })
-
-    useIpc().on('update:progress', (e, data) => {
-      console.log(data)
-      this.updating = true
-      this.percentage = Math.ceil(data.percent)
-    })
-
-    useIpc().on('update:error', (e, data) => {
-      console.error(data)
-      this.failed = true
-    })
-  },
-  methods: {
-    checkForUpdate() {
-      this.checking = true
-      useIpc().send('update:check')
-    },
-    reloadApp() {
-      useIpc().send('update:reload')
-    }
+    ipc.off('update:downloaded', this.updateDownloaded)
+    ipc.off('update:progress', this.updateProgress)
+    ipc.off('update:error', this.updateError)
   },
   computed: {
     popoverText() {

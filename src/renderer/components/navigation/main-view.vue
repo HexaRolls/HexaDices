@@ -1,54 +1,75 @@
 <template>
-  <n-spin :show="loading" style="height: calc(100% - 39px - 44px)">
+  <n-spin v-if="vue" :show="loading" style="height: calc(100% - 39px - 44px)">
     <webview v-if="vue.type === 'webview'" key="webview" :id="vue.id + '-webview'" :src="vue.url" style="height: 100%" webpreferences="enableremotemodule=no, contextisolation=yes"/>
     <heroic-view v-else-if="vue.type === 'heroic'" key="heroic" :save="save"/>
   </n-spin>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { NSpin } from 'naive-ui'
+import { defineComponent, PropType, ref } from 'vue'
 import { WebviewTag } from 'electron'
+import { Game } from '/@shared/games'
+
+import { NSpin } from 'naive-ui'
+
 import HeroicView from '../heroicView.vue'
 
 export default defineComponent({
-  props: ['vue', 'save'],
-  data() {
-    return {
-      loading: false,
-      webview: null as null|WebviewTag
+  props: {
+    vue: {
+      type: Object as PropType<Game['vues'][0]>,
+      required: false
+    },
+    save: {
+      type: Array as PropType<Game[]>,
+      required: false
     }
   },
-  methods: {
-    listenEvents(activeView: any) {
-      if (activeView.type === 'webview') {
-        this.webview = document.getElementById(`${activeView.id}-webview`) as WebviewTag
-        console.log(this.webview)
-        if (!this.webview) return
-        this.$emit('navigation', this.webview)
+  setup(props, { emit }) {
+    const loading = ref(false)
+    const webview = ref(null as null|WebviewTag)
 
-        this.webview.addEventListener('did-start-loading', () => {
-          this.loading = true
+    const onViewChange = (activeView: Game['vues'][0] | null) => {
+      if (!activeView) return
+
+      if (activeView.type === 'webview') {
+        webview.value = document.getElementById(`${activeView.id}-webview`) as WebviewTag
+        if (!webview.value) return
+
+        emit('navigation', webview.value)
+
+        webview.value.addEventListener('did-start-loading', () => {
+          loading.value = true
         })
-        this.webview.addEventListener('did-stop-loading', () => {
-          this.loading = false
-          this.$emit('finished-loading', {
-            back: this.webview?.canGoBack(),
+        webview.value.addEventListener('did-stop-loading', () => {
+          if (!webview.value) return
+
+          loading.value = false
+          emit('finished-loading', {
+            back: webview.value.canGoBack(),
             loading: false,
-            forward: this.webview?.canGoForward()
+            forward: webview.value.canGoForward()
           })
         })
+      } else {
+        loading.value = false
       }
+    }
+
+    return {
+      loading,
+      webview,
+      onViewChange
     }
   },
   watch: {
     vue: {
       immediate: true,
-      handler(newVal, oldVal) {
-        console.log(newVal)
+      handler(newVal) {
         if (!newVal) return
+
         this.$nextTick(() => {
-          this.listenEvents(newVal)
+          this.onViewChange(newVal)
         })
       }
     }
@@ -64,11 +85,5 @@ export default defineComponent({
 
 .n-spin-content
   height: 100%
-
-.mode-fade-enter-active, .mode-fade-leave-active
-  transition: opacity .5s ease
-
-.mode-fade-enter-from, .mode-fade-leave-to
-  opacity: 0
 
 </style>
