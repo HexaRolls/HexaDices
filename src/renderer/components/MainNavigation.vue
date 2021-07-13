@@ -1,6 +1,5 @@
 <template>
   <main id="main-content" ref="main-content" style="position:relative;overflow-x:hidden">
-    <!-- <navigator /> -->
     <div class="container">
       <router-view v-slot="{ Component }">
         <page-transition>
@@ -14,7 +13,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { NLoadingBarProvider, NMessageProvider, NNotificationProvider } from 'naive-ui'
-import Navigator from '/@/components/HomeNavigator.vue'
 import PageTransition from '/@/components/navigation/pageTransition.vue'
 
 export default defineComponent({
@@ -22,7 +20,6 @@ export default defineComponent({
     NLoadingBarProvider,
     NMessageProvider,
     NNotificationProvider,
-    Navigator,
     PageTransition
   }
 })
