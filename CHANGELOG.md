@@ -1,3 +1,18 @@
+## [1.10.0](https://github.com/HexaRolls/HexaDices/compare/v1.9.0...v1.10.0) (2021-07-15)
+
+
+### Features
+
+* **App:** New assets for the main menu ([0791ec1](https://github.com/HexaRolls/HexaDices/commit/0791ec144ffe437b771cff3929087f6775f069d6))
+* **SheetList:** Adds pannel saved player sheets ([56923af](https://github.com/HexaRolls/HexaDices/commit/56923af4d81a59eb546c86649292ca088edaf098))
+
+
+### Bug Fixes
+
+* Animation not sliding in navigation order ([a17c0d2](https://github.com/HexaRolls/HexaDices/commit/a17c0d27dc5a0fa090b3c3a8ae8c8b4165cc22a6))
+* page disapearing if transition not finished ([9606f3a](https://github.com/HexaRolls/HexaDices/commit/9606f3a3aae0b49f5e78f7d5d7bda3c9ad233cd0))
+* Typo ([79012a6](https://github.com/HexaRolls/HexaDices/commit/79012a6c3f5dcad1b44ca50e9ace0db586fcc248))
+
 ## [1.9.0](https://github.com/HexaRolls/HexaDices/compare/v1.8.1...v1.9.0) (2021-07-12)
 
 
