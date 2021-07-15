@@ -103,7 +103,7 @@ export default defineComponent({
       })
     },
     afterEnter(element: HTMLElement) {
-      element.style.height = 'auto'
+      element.style.height = ''
     }
   }
 })
