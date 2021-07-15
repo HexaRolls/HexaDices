@@ -1,12 +1,10 @@
 <template>
   <main id="main-content" ref="main-content" style="position:relative;overflow-x:hidden">
-    <div class="container">
-      <router-view v-slot="{ Component }">
-        <page-transition>
-          <component :is="Component" :key="$route.path"/>
-        </page-transition>
-      </router-view>
-    </div>
+    <router-view v-slot="{ Component }">
+      <page-transition>
+        <component :is="Component" :key="$route.path"/>
+      </page-transition>
+    </router-view>
   </main>
 </template>
 
