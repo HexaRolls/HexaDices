@@ -1,81 +1,87 @@
 <template>
   <article class="container">
-    <header id="search-bar">
-      <h2>Liste des parties</h2>
-      <n-space class="searchBarActions">
-        <n-popover trigger="hover" placement="bottom">
-          <template #trigger>
-            <n-button size="large" circle @click="gameAddDrawerRef?.toggle()">
-              <template #icon>
-                <plus />
-              </template>
-            </n-button>
+    <n-layout position="relative">
+      <n-layout-header position="absolute" style="top: 0;height: 4.5em;display: flex;justify-content: space-between;align-items: center;padding: 0 5vw">
+        <h2>Liste des parties</h2>
+        <n-space class="searchBarActions">
+          <n-popover trigger="hover" placement="bottom">
+            <template #trigger>
+              <n-button size="large" circle @click="gameAddDrawerRef?.toggle()">
+                <template #icon>
+                  <plus />
+                </template>
+              </n-button>
+            </template>
+            <span>Ajouter une partie</span>
+          </n-popover>
+          <n-popover trigger="hover" placement="bottom-end">
+            <template #trigger>
+              <n-button size="large" circle @click="gameSearchDrawerRef?.toggle()">
+                <template #icon>
+                  <list-search />
+                </template>
+              </n-button>
+            </template>
+            <span>Rechercher une partie</span>
+          </n-popover>
+        </n-space>
+      </n-layout-header>
+      <n-layout-content position="absolute" style="top: 4.5em;" content-style="padding: 1em" :native-scrollbar="false">
+        <n-space vertical v-if="games && games.length">
+          <draggable
+            :class="['game-list', { 'dragging': drag }]"
+            tag="transition-group" item-key="id"
+            :component-data="{
+              tag: 'ul',
+              type: 'transition-group',
+              name: !drag ? 'flip-list' : null
+            }"
+            @start="drag = true" @end="drag = false" @change="updateArray"
+            v-model="games" v-bind="dragOptions" :move="checkMove"
+          >
+            <template #item="{ element }">
+              <li class="game-item">
+                <article class="game-info" :class="{ 'fixed': element.fixed }" tabindex="0">
+                  <header class="game-head">
+                    <span class="game-id">{{ element.id }}</span>
+                  </header>
+                  <div class="game-body">
+                    <h2>{{ element.name }}</h2>
+                    <p>{{ element.description }}</p>
+                    <div class="alt">
+                      <i class="icon" :class="[ element.fixed ? 'gg-unblock' : 'gg-block' ]" @click="toggleFixed($event, element)"></i>
+                    </div>
+                  </div>
+                  <ul class="game-options">
+                    <li class="game-option" tabindex="0" @click="$router.push(`/play/${element.id}`)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M21.2635 2.29289C20.873 1.90237 20.2398 1.90237 19.8493 2.29289L18.9769 3.16525C17.8618 2.63254 16.4857 2.82801 15.5621 3.75165L4.95549 14.3582L10.6123 20.0151L21.2189 9.4085C22.1426 8.48486 22.338 7.1088 21.8053 5.99367L22.6777 5.12132C23.0682 4.7308 23.0682 4.09763 22.6777 3.70711L21.2635 2.29289ZM16.9955 10.8035L10.6123 17.1867L7.78392 14.3582L14.1671 7.9751L16.9955 10.8035ZM18.8138 8.98525L19.8047 7.99429C20.1953 7.60376 20.1953 6.9706 19.8047 6.58007L18.3905 5.16586C18 4.77534 17.3668 4.77534 16.9763 5.16586L15.9853 6.15683L18.8138 8.98525Z" fill="currentColor" /><path d="M2 22.9502L4.12171 15.1717L9.77817 20.8289L2 22.9502Z" fill="currentColor" /></svg></li>
+                    <n-popconfirm placement="bottom-end">
+                      <template #activator>
+                        <li class="game-option delete" tabindex="0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M17 5V4C17 2.89543 16.1046 2 15 2H9C7.89543 2 7 2.89543 7 4V5H4C3.44772 5 3 5.44772 3 6C3 6.55228 3.44772 7 4 7H5V18C5 19.6569 6.34315 21 8 21H16C17.6569 21 19 19.6569 19 18V7H20C20.5523 7 21 6.55228 21 6C21 5.44772 20.5523 5 20 5H17ZM15 4H9V5H15V4ZM17 7H7V18C7 18.5523 7.44772 19 8 19H16C16.5523 19 17 18.5523 17 18V7Z" fill="currentColor" /><path d="M9 9H11V17H9V9Z" fill="currentColor" /><path d="M13 9H15V17H13V9Z" fill="currentColor" /></svg></li>
+                      </template>
+                      <template #action>
+                        <n-button size="small" type="warning" ghost @click="handleDelete($event, element)">Oui, supprimez !</n-button>
+                      </template>
+                      <template #default>
+                        <p>
+                          Si vous supprimez cette sauvegarde,<br/>
+                          vous ne pourrez plus la récupérer par la suite,<br/>
+                          êtes-vous sûr ?
+                        </p>
+                      </template>
+                    </n-popconfirm>
+                  </ul>
+                </article>
+              </li>
+            </template>
+          </draggable>
+        </n-space>
+        <n-empty v-else class="game-list" description="Aucune partie disponible">
+          <template #extra>
+            <n-button @click="gameAddDrawerRef?.toggle()">Créez en une !</n-button>
           </template>
-          <span>Ajouter une partie</span>
-        </n-popover>
-        <n-popover trigger="hover" placement="bottom-end">
-          <template #trigger>
-            <n-button size="large" circle @click="gameSearchDrawerRef?.toggle()">
-              <template #icon>
-                <list-search />
-              </template>
-            </n-button>
-          </template>
-          <span>Rechercher une partie</span>
-        </n-popover>
-      </n-space>
-    </header>
-    <n-empty v-if="!games" class="game-list" description="Aucune partie disponible">
-      <template #extra>
-        <n-button @click="gameAddDrawerRef?.toggle()">Créez en une !</n-button>
-      </template>
-    </n-empty>
-    <draggable
-      :class="['game-list', { 'dragging': drag }]"
-      tag="transition-group" item-key="id"
-      :component-data="{
-        tag: 'ul',
-        type: 'transition-group',
-        name: !drag ? 'flip-list' : null
-      }"
-      @start="drag = true" @end="drag = false" @change="updateArray"
-      v-model="games" v-bind="dragOptions" v-else :move="checkMove"
-      >
-      <template #item="{ element }">
-        <li class="game-item">
-          <article class="game-info" :class="{ 'fixed': element.fixed }" tabindex="0">
-            <header class="game-head">
-              <span class="game-id">{{ element.id }}</span>
-            </header>
-            <div class="game-body">
-              <h2>{{ element.name }}</h2>
-              <p>{{ element.description }}</p>
-              <div class="alt">
-                <i class="icon" :class="[ element.fixed ? 'gg-unblock' : 'gg-block' ]" @click="toggleFixed($event, element)"></i>
-              </div>
-            </div>
-            <ul class="game-options">
-              <li class="game-option" tabindex="0" @click="$router.push(`/play/${element.id}`)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M21.2635 2.29289C20.873 1.90237 20.2398 1.90237 19.8493 2.29289L18.9769 3.16525C17.8618 2.63254 16.4857 2.82801 15.5621 3.75165L4.95549 14.3582L10.6123 20.0151L21.2189 9.4085C22.1426 8.48486 22.338 7.1088 21.8053 5.99367L22.6777 5.12132C23.0682 4.7308 23.0682 4.09763 22.6777 3.70711L21.2635 2.29289ZM16.9955 10.8035L10.6123 17.1867L7.78392 14.3582L14.1671 7.9751L16.9955 10.8035ZM18.8138 8.98525L19.8047 7.99429C20.1953 7.60376 20.1953 6.9706 19.8047 6.58007L18.3905 5.16586C18 4.77534 17.3668 4.77534 16.9763 5.16586L15.9853 6.15683L18.8138 8.98525Z" fill="currentColor" /><path d="M2 22.9502L4.12171 15.1717L9.77817 20.8289L2 22.9502Z" fill="currentColor" /></svg></li>
-              <n-popconfirm placement="bottom-end">
-                <template #activator>
-                  <li class="game-option delete" tabindex="0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M17 5V4C17 2.89543 16.1046 2 15 2H9C7.89543 2 7 2.89543 7 4V5H4C3.44772 5 3 5.44772 3 6C3 6.55228 3.44772 7 4 7H5V18C5 19.6569 6.34315 21 8 21H16C17.6569 21 19 19.6569 19 18V7H20C20.5523 7 21 6.55228 21 6C21 5.44772 20.5523 5 20 5H17ZM15 4H9V5H15V4ZM17 7H7V18C7 18.5523 7.44772 19 8 19H16C16.5523 19 17 18.5523 17 18V7Z" fill="currentColor" /><path d="M9 9H11V17H9V9Z" fill="currentColor" /><path d="M13 9H15V17H13V9Z" fill="currentColor" /></svg></li>
-                </template>
-                <template #action>
-                  <n-button size="small" type="warning" ghost @click="handleDelete($event, element)">Oui, supprimez !</n-button>
-                </template>
-                <template #default>
-                  <p>
-                    Si vous supprimez cette sauvegarde,<br/>
-                    vous ne pourrez plus la récupérer par la suite,<br/>
-                    êtes-vous sûr ?
-                  </p>
-                </template>
-              </n-popconfirm>
-            </ul>
-          </article>
-        </li>
-      </template>
-    </draggable>
+        </n-empty>
+      </n-layout-content>
+    </n-layout>
 
     <game-search-drawer ref="gameSearchDrawerRef" :games="games" @add="gameAddDrawerRef?.toggle()" @delete="handleDelete" />
     <game-add-drawer ref="gameAddDrawerRef" :games="games" @adding="handleAdd"/>
@@ -87,6 +93,9 @@ import { computed, defineComponent, reactive, ref, toRefs } from 'vue'
 import { useService } from '../hooks'
 import { Game } from '/@shared/games'
 import {
+  NLayout,
+  NLayoutHeader,
+  NLayoutContent,
   NPopconfirm,
   NButton,
   NEmpty,
@@ -196,59 +205,36 @@ export default defineComponent({
     }
   },
   components: {
-    draggable,
+    NLayout,
+    NLayoutHeader,
+    NLayoutContent,
     NPopconfirm,
     NButton,
     GameAddDrawer,
     GameSearchDrawer,
     NEmpty,
     NPopover,
+    NSpace,
+
+    draggable,
+
     Plus,
-    ListSearch,
-    NSpace
+    ListSearch
   }
 })
 </script>
 
-<style lang="sass" scoped>
-
-.container
-  padding: 0
-  flex-direction: column
-  text-align: left
-  align-items: center
-
-#search-bar
-  width: 100%
-  height: 5em
-  background-color: rgba(0, 0, 0, .15)
-  display: flex
-  justify-content: space-between
-  align-items: center
-  padding: 0 5em
-  white-space: nowrap
-  overflow: hidden
-  column-gap: 1em
+<style lang="sass">
 
 .game-list
   width: 100%
-  padding: 2em 0
+  padding: 3em 0
   list-style: none
   display: flex
   align-items: center
   flex-direction: column
   flex: 1
   row-gap: 1em
-  overflow-y: scroll
-
-  &::-webkit-scrollbar
-    width: 1em
-    background-color: transparent
-
-    &-thumb
-      background-color: rgba(0, 0, 0, .5)
-      border: solid #232430 3px
-      border-radius: 5em
 
   &:not(.dragging) :is(.game-info:hover, .game-info:focus-within)
 
