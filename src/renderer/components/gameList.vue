@@ -5,7 +5,7 @@
       <n-space class="searchBarActions">
         <n-popover trigger="hover" placement="bottom">
           <template #trigger>
-            <n-button size="large" circle @click="toggleAdd">
+            <n-button size="large" circle @click="gameAddDrawerRef?.toggle()">
               <template #icon>
                 <plus />
               </template>
@@ -15,7 +15,7 @@
         </n-popover>
         <n-popover trigger="hover" placement="bottom-end">
           <template #trigger>
-            <n-button size="large" circle @click="toggleSearch">
+            <n-button size="large" circle @click="gameSearchDrawerRef?.toggle()">
               <template #icon>
                 <list-search />
               </template>
@@ -25,9 +25,9 @@
         </n-popover>
       </n-space>
     </header>
-    <n-empty v-if="!games.length" class="game-list" description="Aucune partie disponible">
+    <n-empty v-if="!games" class="game-list" description="Aucune partie disponible">
       <template #extra>
-        <n-button @click="toggleAdd">Créez en une !</n-button>
+        <n-button @click="gameAddDrawerRef?.toggle()">Créez en une !</n-button>
       </template>
     </n-empty>
     <draggable
@@ -39,9 +39,9 @@
         name: !drag ? 'flip-list' : null
       }"
       @start="drag = true" @end="drag = false" @change="updateArray"
-      v-model="games" v-bind="dragOptions" :move="checkMove"
+      v-model="games" v-bind="dragOptions" v-else :move="checkMove"
       >
-      <template #item="{element, index}">
+      <template #item="{ element }">
         <li class="game-item">
           <article class="game-info" :class="{ 'fixed': element.fixed }" tabindex="0">
             <header class="game-head">
@@ -77,45 +77,83 @@
       </template>
     </draggable>
 
-    <game-search-drawer ref="searchSaveDrawer" :games="games" @add="toggleAdd" @delete="handleDelete" />
-    <game-add-drawer ref="addSaveDrawer" :games="games" @adding="handleAdd"/>
+    <game-search-drawer ref="gameSearchDrawerRef" :games="games" @add="gameAddDrawerRef?.toggle()" @delete="handleDelete" />
+    <game-add-drawer ref="gameAddDrawerRef" :games="games" @adding="handleAdd"/>
   </article>
 </template>
 
 <script lang="ts">
-import { defineComponent, VNode } from 'vue'
-import { NPopconfirm, NButton, NEmpty, NPopover, NSpace } from 'naive-ui'
+import { computed, defineComponent, reactive, ref, toRefs } from 'vue'
 import { useService } from '../hooks'
 import { Game } from '/@shared/games'
+import {
+  NPopconfirm,
+  NButton,
+  NEmpty,
+  NPopover,
+  NSpace
+} from 'naive-ui'
+
 import draggable from 'vuedraggable/src/vuedraggable'
-import GameAddDrawer from './forms/gameAddDrawer.vue'
+
 import GameSearchDrawer from './forms/gameSearchDrawer.vue'
+import GameAddDrawer from './forms/gameAddDrawer.vue'
+
 import Plus from './utils/icons/plus.vue'
 import ListSearch from './utils/icons/listSearch.vue'
+
 const Store = useService('PersistentStore')
 
 export default defineComponent({
-  data() {
-    return {
-      games: [] as Game[],
+  setup() {
+    const games = ref(null as null|Game[])
+    const data = reactive({
       drag: false,
       search: '',
       adding: true
+    })
+
+    const group: keyof Game = 'id'
+    const dragOptions = reactive({
+      group,
+      animation: 200,
+      disabled: false,
+      ghostClass: 'ghost'
+    })
+
+    const gameSearchDrawerRef = ref(null as null | typeof GameSearchDrawer)
+    const gameAddDrawerRef = ref(null as null | typeof GameAddDrawer)
+
+    const updateGames = () => {
+      if (games.value) {
+        Store.setStoreValue('saved', 'games', JSON.parse(JSON.stringify(games.value)))
+      }
+    }
+
+    const getGames = () => {
+      Store.getStoreValue('saved', 'games', null).then((gamesList: null|Game[]) => {
+        if (gamesList) games.value = gamesList
+        else {
+          games.value = []
+          updateGames()
+        }
+      })
+    }
+
+    getGames()
+
+    return {
+      ...toRefs(data),
+      games,
+      updateGames,
+      getGames,
+      dragOptions,
+      filtered: computed(() => games.value?.filter(game => game.name.toLowerCase().indexOf(data.search.toLowerCase()))),
+      gameSearchDrawerRef,
+      gameAddDrawerRef
     }
   },
-  mounted() {
-    this.getGames()
-  },
   methods: {
-    async getGames() {
-      this.games = await Store.getStoreValue('saved', 'games', [])
-    },
-    toggleAdd() {
-      this.$refs.addSaveDrawer.toggle()
-    },
-    toggleSearch() {
-      this.$refs.searchSaveDrawer.toggle()
-    },
     updateArray(updaded: any = {}) {
       if ('added' in updaded) {
         console.log('Added', updaded.added.element, `to ${updaded.added.newIndex}`)
@@ -124,46 +162,37 @@ export default defineComponent({
       } else if ('moved' in updaded) {
         console.log('Moved', updaded.moved.element, `from ${updaded.moved.oldIndex} to ${updaded.moved.newIndex}`)
       }
-      Store.setStoreValue('saved', 'games', JSON.parse(JSON.stringify(this.games)))
+      this.updateGames()
     },
     checkMove(e: any) {
       if (e.draggedContext.element?.fixed) return false
     },
-    handleDelete(event: MouseEvent, element: VNode) {
+    handleDelete(event: MouseEvent, element: Game) {
+      if (!this.games) return
+
       this.games.splice(this.games.findIndex(e => e.name === element.name), 1)
-      this.updateArray()
+      this.updateGames()
     },
     handleAdd(data: Game) {
+      if (!this.games) return
+
       this.games.push({
         id: data.id,
         name: data.name,
         description: data.description,
         users: [{
-          id: 1,
+          id: 0,
           name: 'Maître de jeu',
           status: 'active',
           sheets: []
         }],
         vues: []
-      } as Game)
+      })
       this.updateArray()
     },
     toggleFixed(event: MouseEvent, element: any) {
       element.fixed = !element.fixed
-      this.updateArray()
-    }
-  },
-  computed: {
-    filtered() {
-      return this.games.filter((game: Game) => game.name.toLowerCase().indexOf(this.search.toLowerCase()))
-    },
-    dragOptions() {
-      return {
-        animation: 200,
-        group: 'id',
-        disabled: false,
-        ghostClass: 'ghost'
-      }
+      this.updateGames()
     }
   },
   components: {
