@@ -9,7 +9,7 @@
         </n-input>
         <n-popover trigger="hover" placement="bottom-end">
           <template #trigger>
-            <n-button round type="primary" ghost @click="toggleAdd">
+            <n-button round type="primary" ghost @click="handleAdd">
               <template #icon>
                   <plus />
                 </template>
@@ -61,9 +61,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { NDrawer, NDrawerContent, NList, NListItem, NThing, NInput, NSpace, NButton, NPopover, NPopconfirm, NInputGroup } from 'naive-ui'
+import { computed, defineComponent, reactive, toRefs } from 'vue'
 import { Game } from '/@shared/games'
+
+import {
+  NDrawer,
+  NDrawerContent,
+  NList,
+  NListItem,
+  NInput,
+  NInputGroup,
+  NSpace,
+  NThing,
+  NButton,
+  NPopover,
+  NPopconfirm
+} from 'naive-ui'
 
 import Search from '../utils/icons/search.vue'
 import Trash from '../utils/icons/trash.vue'
@@ -74,33 +87,31 @@ export default defineComponent({
   props: {
     games: {
       type: Array as () => Game[],
-      required: true
+      required: false,
+      default: null
     }
   },
-  data() {
-    return {
+  setup(props, { emit }) {
+    const data = reactive({
       open: false,
       query: ''
-    }
-  },
-  methods: {
-    toggle() {
-      this.open = !this.open
-    },
-    handleDelete(event, element) {
-      this.$emit('delete', event, element)
-    },
-    toggleAdd() {
-      this.$emit('add')
-    }
-  },
-  computed: {
-    filteredGames(): Game[] {
-      return this.games.filter(
-        (game: Game) =>
-          (game.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1) ||
-          (typeof game.description !== 'undefined' && game.description.toLowerCase().indexOf(this.query.toLowerCase()) !== -1)
+    })
+
+    const filteredGames = computed(() => {
+      if (!props.games) return []
+      return props.games.filter(
+        game =>
+          (game.name.toLowerCase().indexOf(data.query.toLowerCase()) !== -1) ||
+          (typeof game.description !== 'undefined' && game.description.toLowerCase().indexOf(data.query.toLowerCase()) !== -1)
       )
+    })
+
+    return {
+      ...toRefs(data),
+      filteredGames,
+      toggle: () => { data.open = !data.open },
+      handleDelete: (e: MouseEvent, el: Game) => emit('delete', e, el),
+      handleAdd: () => emit('add')
     }
   },
   components: {
@@ -108,13 +119,14 @@ export default defineComponent({
     NDrawerContent,
     NList,
     NListItem,
-    NThing,
     NInput,
-    NSpace,
-    NPopover,
-    NButton,
-    NPopconfirm,
     NInputGroup,
+    NSpace,
+    NThing,
+    NButton,
+    NPopover,
+    NPopconfirm,
+
     Search,
     Trash,
     Plus,
