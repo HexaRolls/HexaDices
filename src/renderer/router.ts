@@ -5,6 +5,7 @@ import Welcome from '/@/components/Welcome.vue'
 import gameList from '/@/components/gameList.vue'
 import gameView from '/@/components/gameView.vue'
 import BugReport from '/@/components/BugReport.vue'
+import SheetList from '/@/components/SheetList.vue'
 import Settings from '/@/components/Settings.vue'
 
 const router = createRouter({
@@ -61,6 +62,15 @@ const router = createRouter({
       meta: {
         transitionName: 'slide',
         details: 'Change ses options'
+      }
+    },
+    {
+      path: '/sheets',
+      component: SheetList,
+      name: 'Mes fiches',
+      meta: {
+        transitionName: 'slide',
+        details: 'Gères ses fiches personnage'
       }
     },
     {

@@ -3,7 +3,7 @@
     <main-menu-button to="/games/" title="Mes parties" description="Voir toutes les parties enregistrées" color="#13131A" area="main" :src="imageRef1"/>
     <main-menu-button to="/settings/" title="Paramètres" description="Options de configuration" area="asideOne" :src="imageRef2"/>
     <!-- <main-menu-button to="/assets/" title="Assets" description="Gestions des assets" area="asideTwo" :src="imageRef3"/> -->
-    <!-- <main-menu-button to="/sheets/" title="Fiches enregistrées" description="Personnages enregistrés" area="middleLeft" :src="imageRef3"/> -->
+    <main-menu-button to="/sheets/" title="Fiches enregistrées" description="Personnages enregistrés" area="middleLeft" :src="imageRef3"/>
     <!-- <main-menu-button to="/profile/" title="Profil HexaRolls" description="Obtenir les information sur le profil"  area="middleRight" :src="imageRef2"/> -->
   </div>
 </template>
