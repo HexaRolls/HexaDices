@@ -136,7 +136,7 @@ export default defineComponent({
             name: 'MonTheme',
             extension: 'hdtheme',
             type: 'HexaDices Theme',
-            data: JSON.stringify({ ...globalConfig.config.value.naiveUi, ...globalConfig.config.value.global })
+            data: JSON.stringify({ naiveUi: globalConfig.config.value.naiveUi, global: globalConfig.config.value.global })
           },
           label: 'Enregistrer le thème'
         })
@@ -147,12 +147,12 @@ export default defineComponent({
 
           console.log('imported from', data.filePath)
           const jsonData = JSON.parse(data.data)
-          if (typeof jsonData === 'undefined') return message.error('invalid imported data')
+          if (typeof jsonData === 'undefined' || (typeof jsonData.naiveUi === 'undefined' && typeof jsonData.global === 'undefined')) return message.error('invalid imported data')
 
           globalConfig.setConfig((jsonData.naiveUi || {}), 'naiveUi')
           globalConfig.setConfig((jsonData.global || {}), 'global')
-          console.log(jsonData.naiveUi)
-          console.log(globalConfig.config.value.naiveUi)
+          console.log('Loaded NaiveUI theme: ', jsonData.naiveUi)
+          console.log('Theme loaded: ', globalConfig.config.value.naiveUi)
 
           message.success('Le theme a été importé avec succès')
         })
