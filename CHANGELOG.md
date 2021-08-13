@@ -1,3 +1,10 @@
+### [1.10.1](https://github.com/HexaRolls/HexaDices/compare/v1.10.0...v1.10.1) (2021-08-13)
+
+
+### Bug Fixes
+
+* fixed importation error for hdthemes ([0311357](https://github.com/HexaRolls/HexaDices/commit/0311357f7b7ad8f23fdb271ac0e499af62b52cc5))
+
 ## [1.10.0](https://github.com/HexaRolls/HexaDices/compare/v1.9.0...v1.10.0) (2021-07-15)
 
 
